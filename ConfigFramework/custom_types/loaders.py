@@ -287,7 +287,7 @@ class JSONFileConfigLoader(AbstractConfigLoader):
             super().__init__(self.loader(f), defaults)
 
     @classmethod
-    def load(cls, filepath: PathLike, defaults=None):
+    def load(cls, filepath: Union[PathLike, str], defaults=None):
         return cls(filepath, defaults)
 
     def dump(self):
