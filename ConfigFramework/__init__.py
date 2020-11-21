@@ -1,7 +1,13 @@
 from ConfigFramework.custom_types import *
 
+__version__ = "1.0.0"
+
 
 class BaseConfig:
+    """
+    BaseConfig class that adds some functions to be able to use them with whole thing together.
+
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__post_init__(*args, **kwargs)
@@ -9,7 +15,12 @@ class BaseConfig:
     def __post_init__(self, *args, **kwargs):
         pass
 
-    def dump(self):
+    def dump(self) -> None:
+        """
+        Dumps all variables in config to their providers.
+
+        :return:
+        """
         _loaders = set()
 
         for key in dir(self):
@@ -28,4 +39,3 @@ class BaseConfig:
 
     def __str__(self):
         return repr(self)
-

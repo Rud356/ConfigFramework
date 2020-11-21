@@ -7,6 +7,20 @@ if TYPE_CHECKING:
 
 
 class ConfigVariable:
+    """
+    Class that helps you manage variables from configs.
+
+    Examples:
+        get value of variable  > VarName.value
+        set value to variable  > VarName.value = other
+        init variable in class > ConfigVariable('some key', loader)
+
+    @:param key: specifies under which key the value is
+    @:param value: provides interface to get and change value of variable
+    @:param loader: AbstractConfigLoader
+    @:param caster: specifies func that is used to give var to your app
+    @:param dump_caster: specifies func to cast variables before dumping them
+    """
     def __init__(
             self, key, value, loader: AbstractConfigLoader, *,
             caster=lambda x: x, dump_caster=lambda x: x
@@ -36,6 +50,15 @@ class ConfigVariable:
 
     @classmethod
     def variable(cls, key, loader: AbstractConfigLoader, *, caster=lambda x: x, dump_caster=lambda x: x):
+        """
+        Method for creating a ConfigVariable with a bit less parameters.
+
+        @:param key: specifies under which key the value is
+        @:param loader: AbstractConfigLoader
+        @:param caster: specifies func that is used to give var to your app
+        @:param dump_caster: specifies func to cast variables before dumping them
+        :return: ConfigVariable
+        """
         return cls(key, loader[key], loader, caster=caster, dump_caster=dump_caster)
 
     def __repr__(self):

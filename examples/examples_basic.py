@@ -19,7 +19,7 @@ class Config(BaseConfig):
     # Here's example of how we getting defaults
     sample_default = ConfigVariable.variable("sample_default", json_loader)
 
-    # This function will be runned right after init
+    # This function will be ran right after init
     def __post_init__(self, *args, **kwargs):
         print(self.field2)
         self.field2.value = "123"

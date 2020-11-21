@@ -19,8 +19,22 @@ from . import logger, config
 
 
 class AbstractConfigLoader(ABC):
-    @abstractmethod
-    def __init__(self, data: Dict, defaults=None, *args, **kwargs):
+    """
+    A base class of which all config loaders must be created
+
+    To initialize any config loader it's recommended to use *load* function
+    """
+
+    def __init__(self, data: Dict, defaults: dict = None, *args, **kwargs):
+        """
+        Basic init for any config loader as well can be reused for any of yours loaders.
+        In *load* function you may prepare your data to be a dict and the pass it as data param, which will be useful.
+
+        :param data: dict - all vars as dict loaded from config source
+        :param defaults: dict - default variables for our config source
+        :param args: Any - anything you might need too
+        :param kwargs: Any - anything you might need
+        """
         self.data: Dict = data
 
         if isinstance(defaults, dict):
@@ -29,13 +43,32 @@ class AbstractConfigLoader(ABC):
     @classmethod
     @abstractmethod
     def load(cls, *args, **kwargs):
+        """
+        Function to do anything before passing your data to init.
+        You might even fetch config from internet or start a rocker :)
+
+        :param args:
+        :param kwargs:
+        :return:
+        """
         pass
 
     @abstractmethod
     def dump(self):
+        """
+        Function that saves all data back to place from where it was loaded with applying *dump_caster* on data.
+
+        :return:
+        """
         pass
 
-    def dump_to_other_loader(self, other_loader: AbstractConfigLoader):
+    def dump_to_other_loader(self, other_loader: AbstractConfigLoader) -> AbstractConfigLoader:
+        """
+        Dumps data to copied loader (creates deep copy of it) and returning it.
+
+        :param other_loader: AbstractConfigLoader - any other loader
+        :return: AbstractConfigLoader
+        """
         other_loader.data = self.data
         other_loader = deepcopy(other_loader)
         other_loader.dump()
@@ -43,6 +76,14 @@ class AbstractConfigLoader(ABC):
         return other_loader
 
     def set_variable(self, key: Hashable, value: Any):
+        """
+        Sets value to a key inside specific loader. If option `AllowCreatingNotExistingKeys` (defaults to False)
+        is set to False - it won't let you create variables, which keys were not defined in loader.
+
+        :param key: Hashable
+        :param value: Any
+        :return: None
+        """
         if key not in self.keys() and config.getboolean(
             "LoadersVariables", "AllowCreatingNotExistingKeys", fallback=False
         ):
@@ -50,16 +91,37 @@ class AbstractConfigLoader(ABC):
 
         self.data[key] = value
 
-    def keys(self):
+    def keys(self) -> dict.keys:
+        """
+        Returns all loaders keys.
+
+        :return: Any
+        """
         return self.data.keys()
 
-    def values(self):
+    def values(self) -> dict.values:
+        """
+        Returns all loaded values
+
+        :return: Any
+        """
         return self.data.values()
 
-    def items(self):
+    def items(self) -> dict.items:
+        """
+        Returns all loaded (key, item).
+
+        :return: Any
+        """
         return self.data.items()
 
-    def __getitem__(self, key: Hashable):
+    def __getitem__(self, key: Hashable) -> Any:
+        """
+        Returns a value behind specified key. Raises KeyError if not found.
+
+        :param key: Hashable
+        :return: Any
+        """
         return self.data[key]
 
     def __repr__(self):
@@ -70,6 +132,12 @@ class AbstractConfigLoader(ABC):
 
 
 class CompositeConfigLoader(AbstractConfigLoader):
+    """
+    Combines keys from multiple ConfigLoaders and giving one interface to access them.
+    Might be helpful if you want to use multiple providers and have priority when deciding what variable value to use
+    if it exists in many configs. Searching vars in left to right order.
+    """
+
     def __init__(self, loaders: Tuple[AbstractConfigLoader]):
         super().__init__({})
         self._config_loaders = loaders
@@ -83,6 +151,14 @@ class CompositeConfigLoader(AbstractConfigLoader):
         return other_loader
 
     def _get_key_from_loader(self, key: Hashable, loader: AbstractConfigLoader):
+        """
+        Trying to get a key from specific loader.
+        If not found - raises KeyError and telling inside which loader it was.
+
+        :param key:
+        :param loader:
+        :return:
+        """
         if key in loader.keys():
             return loader[key]
 
@@ -114,15 +190,29 @@ class CompositeConfigLoader(AbstractConfigLoader):
 
     @classmethod
     def load(cls, *loaders: AbstractConfigLoader):
+        """
+        Initializes CompositeConfigLoader that will get variables from all listed loaders.
+        Search happening from first to last element and giving a first value that been found.
+
+        :param loaders: AbstractConfigLoader
+        :return: - cls
+        """
         return cls(loaders)
 
     def dump(self, dump_specific_loader: AbstractConfigLoader = None):
+        """
+        Dumps variables to their specific loader by default. If specified what loader it should dump to - it will not
+        dump any other loader which might save some time.
+
+        :param dump_specific_loader: Optional[AbstractConfigLoader]
+        :return:
+        """
         if not dump_specific_loader:
             for loader in self._config_loaders:
                 loader.dump()
 
         else:
-            dump_specific_loader.dump()
+            return dump_specific_loader.dump()
 
     def set_variable(self, key: Hashable, value: Any):
         for loader in self._config_loaders:
@@ -144,7 +234,12 @@ class CompositeConfigLoader(AbstractConfigLoader):
 
         updating_loader.set_variable(key, value)
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
+        """
+        Returns dict with merged keys
+
+        :return:
+        """
         keys = list(self.keys())
         keys.sort()
 
@@ -154,7 +249,7 @@ class CompositeConfigLoader(AbstractConfigLoader):
 
         return items
 
-    def keys(self):
+    def keys(self) -> dict.keys:
         combined_keys = set()
 
         for loader in self._config_loaders:
@@ -163,14 +258,22 @@ class CompositeConfigLoader(AbstractConfigLoader):
 
         return combined_keys
 
-    def values(self):
+    def values(self) -> dict.values:
         return self.to_dict().keys()
 
-    def items(self):
+    def items(self) -> dict.items:
         self.to_dict().items()
 
 
 class JSONFileConfigLoader(AbstractConfigLoader):
+    """
+    JSON config loader from files. You might change load and dump functions by writing in your code:
+
+    JSONFileConfigLoader.dumper = json.alt_dumper
+    JSONFileConfigLoader.loader = json.alt_loader
+
+    Might be useful if you want to apply your dumper which might be faster or can cast your types to json.
+    """
     dumper = partial(
         json.dump, ensure_ascii=False, check_circular=True,
         indent=config.getint("LoadersVariables", "JSONConfigLoader.dump_indent", fallback=4)
@@ -197,6 +300,14 @@ class JSONFileConfigLoader(AbstractConfigLoader):
 
 
 class JSONStringConfigLoader(JSONFileConfigLoader):
+    """
+    JSON config loader from strings. You might change load and dump functions by writing in your code:
+
+    JSONStringConfigLoader.dumper = json.alt_dumper
+    JSONStringConfigLoader.loader = json.alt_loader
+
+    Might be useful if you want to apply your dumper which might be faster or can cast your types to json.
+    """
     loader = json.loads
     dumper = partial(
         json.dumps, ensure_ascii=False, check_circular=True,
@@ -218,6 +329,14 @@ class JSONStringConfigLoader(JSONFileConfigLoader):
 
 
 class YAMLConfigLoader(AbstractConfigLoader):
+    """
+    YAML config loader from files. You might change load and dump functions by writing in your code:
+
+    YAMLConfigLoader.dumper = yaml.alt_dumper
+    YAMLConfigLoader.loader = yaml.alt_loader
+
+    Might be useful if you want to apply your dumper which might be faster or can cast your types to json.
+    """
     dumper = partial(yaml.dump, Dumper=Dumper)
     loader = partial(yaml.load, Loader=Loader)
 
@@ -245,6 +364,12 @@ class EnvironmentConfigLoader(AbstractConfigLoader):
         super().__init__(dict(environ), defaults)
 
     def dump(self):
+        """
+        Dump function is here left for compatibility with AbstractConfigLoader interface, nothing else. You can't really
+        dump anything to env vars because they are being set immediately.
+
+        :return:
+        """
         pass
 
     @classmethod
