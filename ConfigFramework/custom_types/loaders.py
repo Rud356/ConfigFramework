@@ -308,14 +308,18 @@ class JSONStringConfigLoader(JSONFileConfigLoader):
 
     Might be useful if you want to apply your dumper which might be faster or can cast your types to json.
     """
-    loader = json.loads
+    loader = partial(json.loads)
     dumper = partial(
         json.dumps, ensure_ascii=False, check_circular=True,
         indent=config.getint("LoadersVariables", "JSONConfigLoader.dump_indent", fallback=4)
     )
 
     def __init__(self, serialized: str, defaults=None):
-        super(AbstractConfigLoader, self).__init__(self.loader(s=serialized), defaults)
+        data = self.loader(serialized)
+        self.data: Dict = data
+
+        if isinstance(defaults, dict):
+            self.data = ChainMap(data, defaults)
 
     @classmethod
     def load(cls, serialized: str, defaults=None):
@@ -350,8 +354,8 @@ class YAMLConfigLoader(AbstractConfigLoader):
         return cls(filepath, defaults)
 
     def dump(self):
-        with open(self._config_path) as config_f:
-            self.dumper(config_f, self)
+        with open(self._config_path, mode='w', encoding='utf8') as config_f:
+            self.dumper(self.data, config_f)
 
     def __str__(self):
         return f"{self.__class__.__name__}: {self._config_path}"
