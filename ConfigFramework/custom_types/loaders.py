@@ -278,7 +278,7 @@ class JSONFileConfigLoader(AbstractConfigLoader):
         json.dump, ensure_ascii=False, check_circular=True,
         indent=config.getint("LoadersVariables", "JSONConfigLoader.dump_indent", fallback=4)
     )
-    loader = partial(json.load, encoding='utf8')
+    loader = partial(json.load)
 
     def __init__(self, filepath: Union[PathLike, str], defaults=None):
 
