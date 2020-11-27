@@ -23,7 +23,13 @@ conf = Config()
 conf.dump()
 
 ```
-[See full example with explanation here](examples/examples_basic.py)
+[See full example with explanation here](https://github.com/Rud356/ConfigFramework/examples/examples_basic.py)
+
+## Installing
+Pypi link: https://pypi.org/project/ConfigFramework
+
+```pip install ConfigFramework```
+
 ## Build your own config loaders and casters
 
 The way ConfigFramework been built allowing you to just inherit your own loaders like that
@@ -41,7 +47,7 @@ class NewCustomConfigLoader(AbstractConfigLoader):
     @classmethod
     def load(cls, defaults=None):
         data: dict = load_from_internet()
-        return cls(data, None)
+        return cls(data, defaults)
 
     def dump(self):
         upload_to_cloud(self.data)
@@ -94,7 +100,7 @@ But keep in mind that not all types are easily translated over formats (for exam
 write serializers if you need!
 
 Out of the box you also may combine multiple ConfigLoaders:
-see in [combined config loaders example](examples/example_combined_loaders.py)
+see in [combined config loaders example](https://github.com/Rud356/ConfigFramework/examples/example_combined_loaders.py)
 
 If you need some default type casters (for example if you loading ini file) - you may use one's from 
 `ConfigFramework.custom_types.casters.Casters`
