@@ -10,10 +10,17 @@ class ConfigVariable:
     """
     Class that helps you manage variables from configs.
 
-    Examples:
+
+    If you need to specify variable that lies under other keys:
+    you have to specify path to variable like a relative path from config root
+
+    Example: config_root/setups/proxy_url
+
+    Class usage examples:
         get value of variable  > VarName.value
         set value to variable  > VarName.value = other
-        init variable in class > ConfigVariable('some key', loader)
+        init variable in class > ConfigVariable.variable('some key', loader)
+        init variable that is under other key: ConfigVariable.variable('some key/other key/var', loader)
 
     @:param key: specifies under which key the value is
     @:param value: provides interface to get and change value of variable
@@ -46,7 +53,7 @@ class ConfigVariable:
                 f"You've tried to set variable {self.key} a value {var_value} from loader {self.loader}\n",
                 exc_info=e
             )
-            raise e
+            raise ValueError(f"Something gone wrong on setting value of {self.key}") from e
 
     @classmethod
     def variable(cls, key, loader: AbstractConfigLoader, *, caster=lambda x: x, dump_caster=lambda x: x):

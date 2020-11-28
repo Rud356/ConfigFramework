@@ -42,6 +42,26 @@ class TestConfigFramework(unittest.TestCase):
 
         unlink('testing')
 
+    def test_nested_loading_and_saving(self):
+        with open('testing', mode='w+') as s:
+            s.writelines('{"a": "world", "b": {"nested_var": "nested_val"}}')
+
+        json_loader = JSONFileConfigLoader.load("testing")
+
+        class Config(BaseConfig):
+            nested = ConfigVariable.variable("b/nested_var", json_loader)
+
+            def __post_init__(self, *args, **kwargs):
+                self.nested.value = "Tests"
+
+        conf = Config()
+        conf.nested.loader.dump()
+
+        with open('testing') as f:
+            self.assertEqual(json.load(f), json.loads('{"a": "world", "b": {"nested_var": "Tests"}}'))
+
+        unlink('testing')
+
     def test_yaml(self):
         with open('testing', mode='w+') as s:
             s.writelines('a: 12')

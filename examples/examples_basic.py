@@ -18,10 +18,12 @@ class Config(BaseConfig):
 
     # Here's example of how we getting defaults
     sample_default = ConfigVariable.variable("sample_default", json_loader)
+    nested_variable = ConfigVariable.variable("nested_example/variables here", json_loader)
 
     # This function will be ran right after init
     def __post_init__(self, *args, **kwargs):
-        print(self.field2)
+        print("Field2:", self.field2.value)
+        print("here's nested example:", self.nested_variable.value)
         self.field2.value = "123"
 
 

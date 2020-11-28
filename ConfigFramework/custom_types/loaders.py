@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 from abc import ABC, abstractmethod
 from collections import ChainMap
 from copy import deepcopy
@@ -62,6 +63,27 @@ class AbstractConfigLoader(ABC):
         """
         pass
 
+    @staticmethod
+    def _key_cast_to_path(key) -> Tuple:
+        if isinstance(key, str) and "/" in key:
+            return Path(key).parts
+
+        return key,
+
+    def _get_to_variable_root(self, keys: Tuple) -> Dict:
+        """
+        Helper function to change variable which is not at root of config
+
+        :param keys:
+        :return:
+        """
+        root = self.data
+
+        for key in keys[:-1]:
+            root = root[key]
+
+        return root
+
     def dump_to_other_loader(self, other_loader: AbstractConfigLoader) -> AbstractConfigLoader:
         """
         Dumps data to copied loader (creates deep copy of it) and returning it.
@@ -75,21 +97,31 @@ class AbstractConfigLoader(ABC):
 
         return other_loader
 
-    def set_variable(self, key: Hashable, value: Any):
+    def set_variable(self, key, value: Any):
         """
         Sets value to a key inside specific loader. If option `AllowCreatingNotExistingKeys` (defaults to False)
         is set to False - it won't let you create variables, which keys were not defined in loader.
 
-        :param key: Hashable
+        If you need to set value to a variable that lies under other keys:
+        you have to specify path to variable like a relative path from config root
+
+        Example: config_root/setups/proxy_url
+
+        :param key:
         :param value: Any
         :return: None
         """
-        if key not in self.keys() and config.getboolean(
+
+        key_path = self._key_cast_to_path(key)
+        variable = key_path[-1]  # Taking last key as a variable we have to change
+        variable_root = self._get_to_variable_root(key_path)
+
+        if key not in variable_root.keys() and config.getboolean(
             "LoadersVariables", "AllowCreatingNotExistingKeys", fallback=False
         ):
             raise KeyError(f"This key doesn't exists in loader: {self}")
 
-        self.data[key] = value
+        variable_root[variable] = value
 
     def keys(self) -> dict.keys:
         """
@@ -115,14 +147,24 @@ class AbstractConfigLoader(ABC):
         """
         return self.data.items()
 
-    def __getitem__(self, key: Hashable) -> Any:
+    def __getitem__(self, key) -> Any:
         """
         Returns a value behind specified key. Raises KeyError if not found.
+
+        If you need to specify variable that lies under other keys:
+        you have to specify path to variable like a relative path from config root
+
+        Example: config_root/setups/proxy_url
 
         :param key: Hashable
         :return: Any
         """
-        return self.data[key]
+
+        key_path = self._key_cast_to_path(key)
+        variable = key_path[-1]  # Taking last key as a variable we have to change
+        variable_root = self._get_to_variable_root(key_path)
+
+        return variable_root[variable]
 
     def __repr__(self):
         return f"Loader: {self.__class__.__name__}"
@@ -150,7 +192,7 @@ class CompositeConfigLoader(AbstractConfigLoader):
 
         return other_loader
 
-    def _get_key_from_loader(self, key: Hashable, loader: AbstractConfigLoader):
+    def _get_key_from_loader(self, key, loader: AbstractConfigLoader):
         """
         Trying to get a key from specific loader.
         If not found - raises KeyError and telling inside which loader it was.
@@ -159,10 +201,11 @@ class CompositeConfigLoader(AbstractConfigLoader):
         :param loader:
         :return:
         """
-        if key in loader.keys():
+        try:
             return loader[key]
 
-        raise KeyError(f"No key in loader {loader}")
+        except KeyError as ke:
+            raise KeyError(f"No key in loader {loader}") from ke
 
     def __getitem__(self, key: Hashable):
         value = None
@@ -214,7 +257,7 @@ class CompositeConfigLoader(AbstractConfigLoader):
         else:
             return dump_specific_loader.dump()
 
-    def set_variable(self, key: Hashable, value: Any):
+    def set_variable(self, key, value: Any):
         for loader in self._config_loaders:
             try:
                 self._get_key_from_loader(key, loader)
@@ -362,8 +405,24 @@ class YAMLConfigLoader(AbstractConfigLoader):
 
 
 class EnvironmentConfigLoader(AbstractConfigLoader):
-    def __init__(self, defaults=None):
-        if not config.getboolean("LoadersVariables", "EnvironmentConfigLoader.mute_warning", fallback=False):
+    """
+    Environment loader
+
+    This loader is specific because it can not be dumped, all vars can't be looked up using paths.
+    If you got warning about need in casters and not being able to dump vars - set `mute_warn=True`
+    or use ConfigFrameworks config file
+
+    """
+    def __init__(self, defaults=None, mute_warn=False):
+        """
+        If you need to mute warnings - set `mute_warn=True` or change in config file
+
+        :param defaults:
+        :param mute_warn:
+        """
+        if not mute_warn and not config.getboolean(
+                "LoadersVariables", "EnvironmentConfigLoader.mute_warning", fallback=False
+        ):
             logger.warn("Note that EnvironmentConfigLoader only dumps vars as str and you always have to set casters")
         super().__init__(dict(environ), defaults)
 
@@ -377,10 +436,18 @@ class EnvironmentConfigLoader(AbstractConfigLoader):
         pass
 
     @classmethod
-    def load(cls):
-        return cls()
+    def load(cls, defaults=None, mute_warn=False):
+        return cls(defaults, mute_warn)
 
     def set_variable(self, key: str, value: str, **_):
+        """
+        Sets variable for environ and does not trying to look for paths in key
+
+        :param key:
+        :param value:
+        :param _:
+        :return:
+        """
         self.data[key] = str(value)
         environ[key] = str(value)
 
