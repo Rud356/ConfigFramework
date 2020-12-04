@@ -225,7 +225,7 @@ class CompositeConfigLoader(AbstractConfigLoader):
 
         if not found_value:
             raise KeyError(
-                f"Loader {self.__name__} don't have specified key in any of sub-loaders: {key}"
+                f"Loader {self.__class__.__name__} don't have specified key in any of sub-loaders: {key}"
                 "\n".join((str(sub_loader) for sub_loader in self._config_loaders))
             )
 
@@ -412,6 +412,9 @@ class EnvironmentConfigLoader(AbstractConfigLoader):
     If you got warning about need in casters and not being able to dump vars - set `mute_warn=True`
     or use ConfigFrameworks config file
 
+    Even if while using composite config loader only last part of path to variable will be taken.
+    It means that something like `variables_root/vars/nested` gonna become just `nested`
+
     """
     def __init__(self, defaults=None, mute_warn=False):
         """
@@ -425,6 +428,17 @@ class EnvironmentConfigLoader(AbstractConfigLoader):
         ):
             logger.warn("Note that EnvironmentConfigLoader only dumps vars as str and you always have to set casters")
         super().__init__(dict(environ), defaults)
+
+    def _get_to_variable_root(self, keys: Tuple) -> Dict[str, str]:
+        """
+        Helper function to change variable which is not at root of config
+
+        Fixed for env variables because they can not be nested
+        :param keys:
+        :return:
+        """
+
+        return dict(self.data)
 
     def dump(self):
         """
