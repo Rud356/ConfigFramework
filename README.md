@@ -115,4 +115,4 @@ EnvironmentConfigLoader about need in casters for everything and not being able 
 Also it can help you set a path for log files.
 
 If you need to change location of config file - just set an environment variable `CONFIGFRAMEWORK_SETTINGS_PATH`
-to your liking with full path to logs file.
+to your liking with path to settings file.
