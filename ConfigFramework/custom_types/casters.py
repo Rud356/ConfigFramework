@@ -1,5 +1,7 @@
 from enum import Enum
 
+# TODO: improve casters
+
 
 class Casters(Enum):
     str: callable = str

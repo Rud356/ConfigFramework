@@ -1,11 +1,19 @@
 import logging
+from sys import stderr
 from ConfigFramework.settings import config
 
 logger = logging.Logger("ConfigFramework logger", level=logging.WARN)
-logger.addHandler(logging.FileHandler(
+formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
+file_handler = logging.FileHandler(
     config.get("LoadersVariables", "LogPath", fallback='ConfigFramework.log'), 'a', 'utf8'
-))
-logger.addHandler(logging.Handler(level=logging.WARN))
+)
+stream_handler = logging.StreamHandler()
+
+file_handler.setFormatter(formatter)
+stream_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
+logger.addHandler(stream_handler)
 
 from .config_variable import *
 from .loaders import *

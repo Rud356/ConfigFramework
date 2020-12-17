@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 from . import logger
 
 if TYPE_CHECKING:
@@ -30,13 +30,46 @@ class ConfigVariable:
     """
     def __init__(
             self, key, value, loader: AbstractConfigLoader, *,
-            caster=lambda x: x, dump_caster=lambda x: x
+            caster=lambda x: x, dump_caster=lambda x: x, validator=lambda v: True, default=None
     ):
         self.key = key
         self._value = caster(value)
         self.loader = loader
-        self.dump_caster = dump_caster
         self.caster = caster
+        self.dump_caster = dump_caster
+
+        self._validate_value(validator, default)
+
+    def _validate_value(self, validator: Callable, default):
+        """
+        Function helps us validate variables (including default variable) through users validation function
+
+        :param validator:
+        :param default:
+        :return:
+        """
+        try:
+            if not validator(self._value):
+                raise ValueError(f"Invalid value for variable | {self.key} |")
+
+        except ValueError as invalid_value_exc:
+            if default is None:
+                logger.error(invalid_value_exc)
+                raise invalid_value_exc
+
+            else:
+                self._value = default
+
+                def validate_default_variable(var):
+                    try:
+                        return validator(var)
+
+                    except ValueError as invalid_default_var:
+                        raise ValueError(
+                            f"Invalid default value for key | {self.key} | in loader {self.loader}"
+                        ) from invalid_default_var
+
+                self._validate_value(validate_default_variable, None)
 
     @property
     def value(self):
@@ -56,7 +89,10 @@ class ConfigVariable:
             raise ValueError(f"Something gone wrong on setting value of {self.key}") from e
 
     @classmethod
-    def variable(cls, key, loader: AbstractConfigLoader, *, caster=lambda x: x, dump_caster=lambda x: x):
+    def variable(
+            cls, key, loader: AbstractConfigLoader, *, caster=lambda x: x, dump_caster=lambda x: x,
+            validator=lambda v: True, default=None
+    ):
         """
         Method for creating a ConfigVariable with a bit less parameters.
 
@@ -66,7 +102,11 @@ class ConfigVariable:
         @:param dump_caster: specifies func to cast variables before dumping them
         :return: ConfigVariable
         """
-        return cls(key, loader[key], loader, caster=caster, dump_caster=dump_caster)
+        return cls(
+            key, loader[key], loader,
+            caster=caster, dump_caster=dump_caster,
+            validator=validator, default=default
+        )
 
     def __repr__(self):
         return f"{self.key} = {self.value} ({self.loader})"

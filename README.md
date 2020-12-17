@@ -30,9 +30,18 @@ Pypi link: https://pypi.org/project/ConfigFramework
 
 ```pip install ConfigFramework```
 
-## Build your own config loaders and casters
+## Important notes
+- When you are using environment variables - you most likely will get error message for a first time
+because I should've warned you about need in casters for it. You may change that behaviour in created config file for
+config framework or create env loader with parameter mute_warn=True `EnvironmentConfigLoader(mute_warn=True)`
+- Not all types can be translatable from one format to another so think of formats you are using
+- Since [this commit](https://github.com/Rud356/ConfigFramework/tree/8acd351638897e49a3d08e4699b2af9b736e21dc)
+for compatibility with environment variables and nested configs you will use only last part of variable path. For
+example path `root/var` for environment variables will be taken as `var`
 
-The way ConfigFramework been built allowing you to just inherit your own loaders like that
+## Build your own config loaders, casters and fields usage examples
+
+The way ConfigFramework been built allowing you to build your own loaders like that
 
 ```python
 from ConfigFramework import AbstractConfigLoader
@@ -99,13 +108,46 @@ new_loader = json_loader.dump_to_other_loader(yaml_loader)
 But keep in mind that not all types are easily translated over formats (for example arrays and mappings) but you may
 write serializers if you need!
 
+It is possible to add validators and default values to exact field, and if something is wrong - get error message about
+that:
+```python
+from ConfigFramework import BaseConfig, ConfigVariable, JSONStringConfigLoader
+
+config_loader = JSONStringConfigLoader('{"hello example": "world", "variable name": 1024}')
+
+
+def validator_example(var):
+    if var < 512:
+        return True
+
+    else:
+        # Raising ValueError inside of validator will drop its message to log, instead of more abstract one
+        # So you may tell how to fix something in config
+        raise ValueError("And that's how you do more advanced messages about what's wrong")
+
+
+class Config(BaseConfig):
+    hello = ConfigVariable.variable("hello example", config_loader)
+    variable_validation_example = ConfigVariable.variable(
+        "variable name", config_loader, caster=int, validator=validator_example
+    )
+
+
+conf = Config()
+```
+
+Examples of validation, defaulting and other:
+- [Basic validation](https://github.com/Rud356/ConfigFramework/blob/master/examples/variable_validator_example.py)
+- [Advanced validation](https://github.com/Rud356/ConfigFramework/blob/master/examples/example_advanced_validation.py)
+- [Defaults per field](https://github.com/Rud356/ConfigFramework/blob/master/examples/example_default_variables_per_field.py)
+
 Out of the box you also may combine multiple ConfigLoaders:
 see in [combined config loaders example](https://github.com/Rud356/ConfigFramework/blob/master/examples/example_combined_loaders.py)
 
 If you need some default type casters (for example if you loading ini file) - you may use one's from 
 `ConfigFramework.custom_types.casters.Casters`
 
-Some more examples [here](examples)
+Some more examples [here](https://github.com/Rud356/ConfigFramework/tree/master/examples)
 
 ## Configuring
 
