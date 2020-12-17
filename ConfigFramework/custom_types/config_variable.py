@@ -38,6 +38,7 @@ class ConfigVariable:
         self.caster = caster
         self.dump_caster = dump_caster
 
+        self.validator = validator
         self._validate_value(validator, default)
 
     def _validate_value(self, validator: Callable, default):
@@ -77,8 +78,11 @@ class ConfigVariable:
 
     @value.setter
     def value(self, var_value):
+        rollback_value = self._value
+
         try:
             self._value = self.caster(var_value)
+            self._validate_value(self.validator, None)
             self.loader.set_variable(self.key, self.dump_caster(self.value))
 
         except Exception as e:
@@ -86,6 +90,7 @@ class ConfigVariable:
                 f"You've tried to set variable {self.key} a value {var_value} from loader {self.loader}\n",
                 exc_info=e
             )
+            self._value = rollback_value
             raise ValueError(f"Something gone wrong on setting value of {self.key}") from e
 
     @classmethod
