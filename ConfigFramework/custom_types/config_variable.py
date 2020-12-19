@@ -5,6 +5,9 @@ from . import logger
 if TYPE_CHECKING:
     from ConfigFramework.custom_types.loaders import AbstractConfigLoader
 
+# TODO: add protected variable
+# TODO: add field overwrite protection to config
+
 
 class ConfigVariable:
     """
@@ -59,7 +62,7 @@ class ConfigVariable:
                 raise invalid_value_exc
 
             else:
-                self._value = default
+                self.value = default
 
                 def validate_default_variable(var):
                     try:
