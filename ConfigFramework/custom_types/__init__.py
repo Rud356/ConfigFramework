@@ -1,5 +1,4 @@
 import logging
-from sys import stderr
 from ConfigFramework.settings import config
 
 logger = logging.Logger("ConfigFramework logger", level=logging.WARN)
@@ -15,5 +14,8 @@ stream_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 logger.addHandler(stream_handler)
 
-from .config_variable import *
-from .loaders import *
+from .config_variable import ConfigVariable
+from .loaders import (
+    AbstractConfigLoader, YAMLConfigLoader, JSONFileConfigLoader, JSONStringConfigLoader,
+    EnvironmentConfigLoader, CompositeConfigLoader
+)
