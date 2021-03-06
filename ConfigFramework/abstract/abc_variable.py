@@ -120,7 +120,7 @@ class AbstractConfigVar(ABC):
             raise ValueError(f"Invalid value to be set for property {self}")
 
         self._value = value
-        self.loader[self.key] = value
+        self.loader[self.key] = self.dump_caster(value)
 
     def __str__(self):
         return self.key
