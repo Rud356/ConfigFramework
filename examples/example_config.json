@@ -1,8 +1,0 @@
-{
-    "sample_default": 4,
-    "var1": "hello world",
-    "var23": 123,
-    "nested_example": {
-        "variables here": "Anything you might need!"
-    }
-}
