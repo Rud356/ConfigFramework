@@ -15,7 +15,7 @@ class AbstractConfigVar(ABC):
         self, key: [Hashable, AnyStr], loader: AbstractConfigLoader, *,
         typehint: Optional[Type] = Any,
         caster: Optional[Callable] = None, dump_caster: Optional[Callable] = None,
-        validator: Optional[Callable] = None, default: Optional[Any] = None
+        validator: Optional[Callable] = None, default: Optional[Any] = None, constant: bool = False
     ):
         """
         Initializes variable for specified loader and key.
@@ -28,8 +28,10 @@ class AbstractConfigVar(ABC):
         :param dump_caster: Callable that being called when config being dumped.
         :param validator: Callable that validates value or defaults in case the original value is invalid.
         :param default: Default value that will be set, if value is invalid.
+        :param constant: Sets if variable value can be set in runtime
         """
         self.key = key
+        self.is_constant = constant
         self.loader: AbstractConfigLoader = loader
 
         # Redefining functions that we will need if they are provided
@@ -56,18 +58,24 @@ class AbstractConfigVar(ABC):
             elif (
                 (getattr(loader, "defaults", None) is not None) and
                 bool_casted_validator(
-                    caster(loader._get_to_variable_root(
-                        loader._key_to_path_cast(key),
+                    caster(loader.get_to_variable_root(
+                        loader.key_to_path_cast(key),
                         lookup_at=loader.defaults
                     ))
                 )
             ):
-                self._value: typehint = caster(loader._get_to_variable_root(
-                    loader._key_to_path_cast(key), lookup_at=loader.defaults
+                self._value: typehint = caster(loader.get_to_variable_root(
+                    loader.key_to_path_cast(key), lookup_at=loader.defaults
                 ))
 
             else:
                 raise ValueError(f"Invalid value for {self} in {self.loader} and default values not found")
+
+        if constant:
+            def not_implemented_assigning(*args, **kwargs) -> NoReturn:
+                raise NotImplementedError("Constants can not be assigned in runtime")
+
+            self.__set__ = not_implemented_assigning
 
     def caster(self, value: Any) -> Any:
         """
