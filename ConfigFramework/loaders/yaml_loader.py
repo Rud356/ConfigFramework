@@ -1,12 +1,13 @@
-from os import PathLike
-from pathlib import Path
-from typing import NoReturn, Union, Dict, AnyStr
 from collections import ChainMap, Mapping
 from functools import partial
+from os import PathLike
+from pathlib import Path
+from typing import AnyStr, Dict, NoReturn, Union
+
+import yaml
 
 from ConfigFramework.abstract.abc_loader import AbstractConfigLoader
 
-import yaml
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
 

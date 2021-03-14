@@ -11,16 +11,21 @@ class AbstractConfigLoader(ABC, Mapping):
     through `__init__` function.
     """
 
-    def __init__(self, data: Union[Dict, ChainMap, Mapping], defaults: Dict, *args, **kwargs):
+    def __init__(
+        self, data: Union[Dict, ChainMap, Mapping], defaults: Dict, include_defaults_to_dumps: Optional[bool] = None,
+        *args, **kwargs
+    ):
         """
         Creates new config loader with your variables.
 
         :param data: data from loader.
         :param defaults: default variables that will be used if not found in loader.
+        :param include_defaults_to_dumps: represents if default values should be dumped to that loader.
         :param args: arguments that can be used for your custom loaders.
         :param kwargs: keyword arguments that can be used for your custom loaders.
         """
         self.data = data
+        self.include_defaults: bool = include_defaults_to_dumps
         self.defaults = defaults
 
         if isinstance(defaults, dict):
@@ -46,7 +51,7 @@ class AbstractConfigLoader(ABC, Mapping):
         """
         Dumps updated variables.
 
-        :param include_defaults: specifies if you want to have default variables to be.
+        :param include_defaults: specifies if you want to have default variables to be dumped.
         :return:
         """
         pass
@@ -56,7 +61,7 @@ class AbstractConfigLoader(ABC, Mapping):
         Dumps variables to other loader that been already initialized.
 
         :param other_loader: other loader that already initialized and where you want to dump stuff.
-        :param include_defaults: include_defaults: specifies if you want to have default variables to be.
+        :param include_defaults: include_defaults_to_dumps: specifies if you want to have default variables to be.
         :return:
         """
         if isinstance(other_loader, AbstractConfigLoader):
@@ -82,15 +87,15 @@ class AbstractConfigLoader(ABC, Mapping):
         :param default: default value.
         :return: anything lying there.
         """
-        casted_key = self._key_to_path_cast(key)
-        val_root = self._get_to_variable_root(casted_key)
+        casted_key = self.key_to_path_cast(key)
+        val_root = self.get_to_variable_root(casted_key)
 
         return val_root.get(casted_key[-1], default=default)
 
     @staticmethod
     @final
     @lru_cache(maxsize=None)
-    def _key_to_path_cast(key: Union[AnyStr, Hashable]) -> Union[Tuple[AnyStr, ...], Tuple[Hashable, ...]]:
+    def key_to_path_cast(key: Union[AnyStr, Hashable]) -> Union[Tuple[AnyStr, ...], Tuple[Hashable, ...]]:
         """
         Casts a key to tuple of keys, that should be applied one by one to get to where variable lies.
         Path pointing example: config_root/database/database_ip
@@ -103,7 +108,7 @@ class AbstractConfigLoader(ABC, Mapping):
 
         return key,
 
-    def _get_to_variable_root(
+    def get_to_variable_root(
             self, keys: Union[Tuple[AnyStr, ...], Tuple[Hashable, ...]], lookup_at: Optional[Dict] = None
     ) -> Dict:
         """
@@ -128,8 +133,8 @@ class AbstractConfigLoader(ABC, Mapping):
         :param key:
         :return:
         """
-        casted_key = self._key_to_path_cast(key)
-        val_root = self._get_to_variable_root(casted_key)
+        casted_key = self.key_to_path_cast(key)
+        val_root = self.get_to_variable_root(casted_key)
 
         return val_root[casted_key[-1]]
 
@@ -142,8 +147,8 @@ class AbstractConfigLoader(ABC, Mapping):
         :return:
         """
 
-        casted_key = self._key_to_path_cast(key)
-        val_root = self._get_to_variable_root(casted_key)
+        casted_key = self.key_to_path_cast(key)
+        val_root = self.get_to_variable_root(casted_key)
         val_root[casted_key[-1]] = value
 
     def __repr__(self):
