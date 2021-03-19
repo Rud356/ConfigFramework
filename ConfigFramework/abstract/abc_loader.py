@@ -8,7 +8,7 @@ from typing import Any, AnyStr, Dict, Hashable, NoReturn, Optional, Tuple, Union
 
 class AbstractConfigLoader(ABC, Mapping):
     """
-    Base class for any of your loaders. Initialization can be mae through load function, or, if author wants so,
+    Base class for any of your loaders. Initialization can be made through load function, or, if author wants so,
     through `__init__` function.
     """
 

@@ -62,16 +62,3 @@ class TestConfigs(unittest.TestCase):
 
         config = ConfigSample()
         self.assertTrue(config.SubConfig.rud356 == "test")
-
-    def test_config_variable_creation_with_predefined_args(self):
-        json_string_loader = loaders.JsonStringLoader.load('{"Rud": "original author"}')
-
-        class RudVariable(variables.ConfigVar):
-            def __init__(self):
-                super().__init__(key="Rud", loader=json_string_loader)
-
-        class ConfigSample(base_config.BaseConfig):
-            rud = RudVariable
-
-        config = ConfigSample()
-        self.assertTrue(config.rud == "original author")

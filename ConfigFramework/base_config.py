@@ -16,10 +16,6 @@ class BaseConfig:
         """
         Initializes config class.
 
-        If you want to define variable as class, inherited from AbstractConfigVar - then its `__init__`
-        must take no arguments and initialize everything inside (define the loader it takes var from,
-        key with which you get to variable, etc.)
-
         :param args: args
         :param __passed_classes: set of classes, that already been initialized
         :param kwargs: kwargs
@@ -38,15 +34,6 @@ class BaseConfig:
             if isinstance(obj, AbstractConfigVar):
                 self._variables.add(obj)
                 self._loaders.add(obj.loader)
-
-            if obj.__class__ is type and AbstractConfigVar.__subclasscheck__(obj):
-                params = list(signature(obj).parameters)
-                if len(params) != 0:
-                    raise ValueError(f"Parameters for {obj} initialization is not empty")
-
-                initialized_var = deepcopy(obj)()
-                self._variables.add(initialized_var)
-                setattr(self, key,initialized_var)
 
             if issubclass(obj.__class__, BaseConfig):
                 # initializing class with config underlying our main config
