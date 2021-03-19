@@ -1,9 +1,11 @@
+from __future__ import annotations
 from abc import ABC
 from functools import wraps
 from typing import Any, AnyStr, Callable, Hashable, NoReturn, Optional, TYPE_CHECKING, Type
 
 if TYPE_CHECKING:
     from .abc_loader import AbstractConfigLoader
+    from ConfigFramework.dump_caster import DumpCaster
 
 
 class AbstractConfigVar(ABC):
@@ -14,7 +16,7 @@ class AbstractConfigVar(ABC):
     def __init__(
         self, key: [Hashable, AnyStr], loader: AbstractConfigLoader, *,
         typehint: Optional[Type] = Any,
-        caster: Optional[Callable] = None, dump_caster: Optional[Callable] = None,
+        caster: Optional[Callable] = None, dump_caster: Optional[Callable, DumpCaster] = None,
         validator: Optional[Callable] = None, default: Optional[Any] = None, constant: bool = False
     ):
         """
@@ -44,6 +46,7 @@ class AbstractConfigVar(ABC):
 
         if default is not None:
             self._value: typehint = self.caster(loader.get(key, default))
+
         else:
             self._value: typehint = self.caster(loader[key])
 
@@ -72,7 +75,7 @@ class AbstractConfigVar(ABC):
                 raise ValueError(f"Invalid value for {self} in {self.loader} and default values not found")
 
         if constant:
-            def not_implemented_assigning(*args, **kwargs) -> NoReturn:
+            def not_implemented_assigning(*args, **kwargs) -> NoReturn:  # noqa: passed for compatibility
                 raise NotImplementedError("Constants can not be assigned in runtime")
 
             self.__set__ = not_implemented_assigning
@@ -86,15 +89,18 @@ class AbstractConfigVar(ABC):
         """
         return value
 
-    def dump_caster(self, value: Any) -> Any:
+    def dump_caster(self) -> Any:
         """
         Callable that being called when config being dumped.
-        :param value: value to be casted before being dumped
+        Nothing being passed as attribute since it should be executed after assigning the value to ConfigVar.
+
+        Through self we can obtain access to useful stuff and also use DumpCaster, which allows us to assign
+         specific caster for exact ConfigLoader
         :return:
         """
-        return value
+        return self._value
 
-    def validate(self, value: Any) -> bool:
+    def validate(self, value: Any) -> bool:  # noqa
         """
         Callable that validates value or defaults in case the original value is invalid.
         :param value: value to be validated
@@ -128,7 +134,7 @@ class AbstractConfigVar(ABC):
             raise ValueError(f"Invalid value to be set for property {self}")
 
         self._value = value
-        self.loader[self.key] = self.dump_caster(value)
+        self.loader[self.key] = self.dump_caster()
 
     def __str__(self):
         return self.key

@@ -1,7 +1,9 @@
+from __future__ import annotations
 from typing import Any, AnyStr, Callable, Hashable, List, NoReturn, Optional
 
 from ConfigFramework.abstract.abc_loader import AbstractConfigLoader
 from ConfigFramework.abstract.abc_variable import AbstractConfigVar
+from .dump_caster import DumpCaster
 
 
 class ConfigVar(AbstractConfigVar):
@@ -20,7 +22,8 @@ class IntVar(AbstractConfigVar):
     """
     def __init__(
         self, key: [Hashable, AnyStr], loader: AbstractConfigLoader, *,
-        dump_caster: Optional[Callable] = None, validator: Optional[Callable] = None, default: Optional[Any] = None
+        dump_caster: Optional[Callable, DumpCaster] = None, validator: Optional[Callable] = None,
+        default: Optional[Any] = None
     ):
         super().__init__(
             key, loader, caster=int, typehint=int, dump_caster=dump_caster,
@@ -41,7 +44,8 @@ class FloatVar(AbstractConfigVar):
     """
     def __init__(
         self, key: [Hashable, AnyStr], loader: AbstractConfigLoader, *,
-        dump_caster: Optional[Callable] = None, validator: Optional[Callable] = None, default: Optional[Any] = None
+        dump_caster: Optional[Callable, DumpCaster] = None, validator: Optional[Callable] = None,
+        default: Optional[Any] = None
     ):
         super().__init__(
             key, loader, caster=float, typehint=float, dump_caster=dump_caster,
@@ -62,8 +66,8 @@ class BoolVar(AbstractConfigVar):
     """
     def __init__(
         self, key: [Hashable, AnyStr], loader: AbstractConfigLoader, *,
-        dump_caster: Optional[Callable] = None, validator: Optional[Callable] = None, default: Optional[Any] = None,
-        true_str_values: List[AnyStr] = ("true", "t", "y", "1")
+        dump_caster: Optional[Callable, DumpCaster] = None, validator: Optional[Callable] = None,
+        default: Optional[Any] = None, true_str_values: List[AnyStr] = ("true", "t", "y", "1")
     ):
         super().__init__(
             key, loader, typehint=bool, dump_caster=dump_caster,
@@ -101,4 +105,3 @@ def constant_var(config_var: AbstractConfigVar) -> AbstractConfigVar:
     config_var.is_constant = True
     config_var.__set__ = not_implemented_assigning
     return config_var
-

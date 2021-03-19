@@ -1,17 +1,20 @@
 import json
 from collections import ChainMap, Mapping
-from typing import AnyStr, Dict, Union
+from typing import AnyStr, Dict, Union, Optional
 
 from ConfigFramework.abstract.abc_loader import AbstractConfigLoader
 
 
 class JsonStringLoader(AbstractConfigLoader):
+    json_serialized_loader = json.loads
+    json_serialized_dumper = json.dumps
+
     def __init__(self, data: Union[Dict, ChainMap, Mapping], defaults: Dict):
         super().__init__(data, defaults)
 
     @classmethod
-    def load(cls, config: AnyStr, defaults: Dict = None):
-        data = json.loads(config)
+    def load(cls, config: AnyStr, defaults: Optional[Dict] = None, **json_kwargs):
+        data = cls.json_serialized_loader(config, **json_kwargs)
 
         return cls(data, defaults)
 
@@ -21,4 +24,4 @@ class JsonStringLoader(AbstractConfigLoader):
         if include_defaults:
             to_dump = dict(self.lookup_data)
 
-        return json.dumps(to_dump, ensure_ascii=False, check_circular=True, **json_kwargs)
+        return self.__class__.json_serialized_dumper(to_dump, ensure_ascii=False, check_circular=True, **json_kwargs)

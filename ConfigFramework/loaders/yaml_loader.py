@@ -2,7 +2,7 @@ from collections import ChainMap, Mapping
 from functools import partial
 from os import PathLike
 from pathlib import Path
-from typing import AnyStr, Dict, NoReturn, Union
+from typing import AnyStr, Dict, NoReturn, Union, Optional
 
 import yaml
 
@@ -24,7 +24,7 @@ class YAMLLoader(AbstractConfigLoader):
         self.config_path = config_path
 
     @classmethod
-    def load(cls, config_path: Union[AnyStr, Path, PathLike], defaults: Dict):
+    def load(cls, config_path: Union[AnyStr, Path, PathLike], defaults: Optional[Dict] = None):
         config_path = Path(config_path)
 
         if not config_path.is_file():
