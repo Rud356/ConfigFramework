@@ -1,6 +1,6 @@
 import unittest
 
-from ConfigFramework import loaders, base_config, variables
+from ConfigFramework import base_config, loaders, variables
 
 
 class TestConfigs(unittest.TestCase):

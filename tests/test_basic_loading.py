@@ -1,6 +1,7 @@
 import unittest
-from ConfigFramework.loaders.json_string_loader import JsonStringLoader
+
 from ConfigFramework.abstract.abc_loader import AbstractConfigLoader
+from ConfigFramework.loaders.json_string_loader import JsonStringLoader
 
 
 class TestBasicLoader(unittest.TestCase):

@@ -1,9 +1,7 @@
-import json
 import unittest
 
 from ConfigFramework.loaders import YAMLLoader
-
-from .temp_files_utils import TempFile
+from tests.temp_files_utils import TempFile
 
 
 class TestYamlLoader(unittest.TestCase):
