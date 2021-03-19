@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from ConfigFramework.dump_caster import DumpCaster
 
 
-class AbstractConfigVar(ABC):
+class AbstractConfigVar:
     """
     Abstract config variable with descriptors interface which is a base type for any of your variables classes.
 
@@ -27,7 +27,8 @@ class AbstractConfigVar(ABC):
         :param loader: A loader that will be looked up to get vars value or to update values.
         :param typehint: Typehint for _value field, that by default being returned.
         :param caster: Callable that should return variable casted to specific type (in case you need custom types).
-        :param dump_caster: Callable that being called when config being dumped.
+        :param dump_caster: Callable that being called when config being dumped. Also can be instance of
+         ConfigFramework.dump_caster.DumpCaster
         :param validator: Callable that validates value or defaults in case the original value is invalid.
         :param default: Default value that will be set, if value is invalid.
         :param constant: Sets if variable value can be set in runtime
@@ -35,7 +36,7 @@ class AbstractConfigVar(ABC):
         self.key = key
         self.is_constant = constant
         self.loader: AbstractConfigLoader = loader
-
+        self.__post_init = False
         # Redefining functions that we will need if they are provided
         for redefine_func_name, func in zip(
             ("caster", "dump_caster", "validate"),
@@ -46,13 +47,13 @@ class AbstractConfigVar(ABC):
 
         if default is not None:
             self._value: typehint = self.caster(loader.get(key, default))
+            default = caster(default)
 
         else:
             self._value: typehint = self.caster(loader[key])
 
         # Validation of value and defaults
         bool_casted_validator: Callable = self._validate_to_bool(self.validate)
-        default = caster(default)
 
         if not bool_casted_validator(self._value):
             if (default is not None) and self._validate_to_bool(self.validate(default)):
@@ -74,11 +75,7 @@ class AbstractConfigVar(ABC):
             else:
                 raise ValueError(f"Invalid value for {self} in {self.loader} and default values not found")
 
-        if constant:
-            def not_implemented_assigning(*args, **kwargs) -> NoReturn:  # noqa: passed for compatibility
-                raise NotImplementedError("Constants can not be assigned in runtime")
-
-            self.__set__ = not_implemented_assigning
+        self.__post_init = True
 
     def caster(self, value: Any) -> Any:
         """
@@ -130,17 +127,17 @@ class AbstractConfigVar(ABC):
         return self._value
 
     def __set__(self, instance, value: Any) -> NoReturn:
+        if self.is_constant and self.__post_init:
+            raise NotImplementedError("Constants can not be assigned in runtime")
+
         if not self.validate(value):
             raise ValueError(f"Invalid value to be set for property {self}")
 
         self._value = value
         self.loader[self.key] = self.dump_caster()
 
-    def __str__(self):
-        return self.key
-
     def __repr__(self):
-        return f"{self} in {self.loader} = {self._value}"
+        return f"{self.key} in {self.loader} = {self._value}"
 
 
 __all__ = ["AbstractConfigVar"]
