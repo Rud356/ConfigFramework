@@ -3,7 +3,7 @@ import unittest
 
 from ConfigFramework.loaders import JsonLoader
 
-from .temp_files_utils import TempFile
+from tests.temp_files_utils import TempFile
 
 
 class TestJsonLoader(unittest.TestCase):
