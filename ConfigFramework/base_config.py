@@ -1,6 +1,7 @@
 from __future__ import annotations
 from inspect import signature
 from typing import Set, Type
+from copy import deepcopy
 
 from ConfigFramework.abstract.abc_loader import AbstractConfigLoader
 from ConfigFramework.abstract.abc_variable import AbstractConfigVar
@@ -23,12 +24,12 @@ class BaseConfig:
         :param __passed_classes: set of classes, that already been initialized
         :param kwargs: kwargs
         """
-        self.__post_init__(*args, **kwargs)
         self._variables: Set[AbstractConfigVar] = set()
         self._loaders: Set[AbstractConfigLoader] = set()
         self._sub_configs: Set[BaseConfig] = set()
 
         self.__init_variables_of_config(args, kwargs, __passed_classes)
+        self.__post_init__(*args, **kwargs)
 
     def __init_variables_of_config(self, args, kwargs, __passed_classes: Set[Type]):
         for key in dir(self):
@@ -38,12 +39,16 @@ class BaseConfig:
                 self._variables.add(obj)
                 self._loaders.add(obj.loader)
 
-            if issubclass(obj, AbstractConfigVar):
+            if obj.__class__ is type and AbstractConfigVar.__subclasscheck__(obj):
                 params = list(signature(obj).parameters)
                 if len(params) != 0:
                     raise ValueError(f"Parameters for {obj} initialization is not empty")
 
-            if issubclass(obj, BaseConfig):
+                initialized_var = deepcopy(obj)()
+                self._variables.add(initialized_var)
+                setattr(self, key,initialized_var)
+
+            if issubclass(obj.__class__, BaseConfig):
                 # initializing class with config underlying our main config
                 # here's fix for possible circular class initialization
                 __passed_classes.add(self.__class__)
