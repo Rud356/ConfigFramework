@@ -1,3 +1,4 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections import ChainMap, Mapping
 from functools import lru_cache
@@ -90,7 +91,7 @@ class AbstractConfigLoader(ABC, Mapping):
         casted_key = self.key_to_path_cast(key)
         val_root = self.get_to_variable_root(casted_key)
 
-        return val_root.get(casted_key[-1], default=default)
+        return val_root.get(casted_key[-1], default)
 
     @staticmethod
     @final
@@ -109,7 +110,7 @@ class AbstractConfigLoader(ABC, Mapping):
         return key,
 
     def get_to_variable_root(
-            self, keys: Union[Tuple[AnyStr, ...], Tuple[Hashable, ...]], lookup_at: Optional[Dict] = None
+        self, keys: Union[Tuple[AnyStr, ...], Tuple[Hashable, ...]], lookup_at: Optional[Dict] = None
     ) -> Dict:
         """
         Returns an dictionary with our variable.

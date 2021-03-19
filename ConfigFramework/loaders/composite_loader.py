@@ -1,5 +1,5 @@
 from collections import ChainMap
-from typing import Dict, NoReturn
+from typing import Dict, NoReturn, Optional
 
 from ConfigFramework.abstract.abc_loader import AbstractConfigLoader
 
@@ -25,5 +25,5 @@ class CompositeLoader(AbstractConfigLoader):
         other_loader.dump(include_defaults=include_defaults)
 
     @classmethod
-    def load(cls, *loaders: AbstractConfigLoader, defaults: Dict):
+    def load(cls, *loaders: AbstractConfigLoader, defaults: Optional[Dict] = None):
         return cls(*loaders, defaults=defaults)

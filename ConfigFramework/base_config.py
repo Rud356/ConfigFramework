@@ -1,3 +1,4 @@
+from __future__ import annotations
 from inspect import signature
 from typing import Set, Type
 
