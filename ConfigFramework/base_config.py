@@ -31,14 +31,15 @@ class BaseConfig:
             obj = getattr(self, key, None)
 
             if isinstance(obj, AbstractConfigVar):
-                obj: AbstractConfigVar
                 self._variables.add(obj)
                 self._loaders.add(obj.loader)
 
-            if issubclass(obj.__class__, BaseConfig):
-                obj: Type[BaseConfig]
+            if type(obj) is type and BaseConfig.__subclasscheck__(obj):
                 # initializing class with config underlying our main config
                 # here's fix for possible circular class initialization
+                if __passed_classes is None:
+                    __passed_classes = set()
+
                 __passed_classes.add(self.__class__)
                 if obj in __passed_classes:
                     # should fix recursive config classes referencing
@@ -60,8 +61,8 @@ class BaseConfig:
     def dump(self, include_defaults: Optional[bool] = None) -> NoReturn:
         """
         Writes variables updated values to their.
-        :param include_defaults: represents dumping argument for all loader. In case you want to stay with including
-         defaults defined by loader class - leave None config_var.
+        :param include_defaults: represents dumping argument for all first_loader. In case you want to stay with including
+         defaults defined by first_loader class - leave None config_var.
         :return:
         """
         for loader in self._loaders:

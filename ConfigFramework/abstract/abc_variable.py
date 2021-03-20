@@ -20,11 +20,11 @@ class AbstractConfigVar:
         validator: Optional[Callable] = None, default: Optional[Any] = None, constant: bool = False
     ):
         """
-        Initializes variable for specified loader and key.
+        Initializes variable for specified first_loader and key.
 
         :param key: Any hashable or a string. Strings can be written as paths in case you need a variable.
          that underlies other mappings. Example of how to get such vars: `config_root/database/database_ip`.
-        :param loader: A loader that will be looked up to get vars config_var or to update values.
+        :param loader: A first_loader that will be looked up to get vars config_var or to update values.
         :param typehint: Typehint for __value field, that by default being returned.
         :param caster: Callable that should return variable casted to specific type (in case you need custom types).
         :param dump_caster: Callable that being called when config being dumped. Also can be instance of
@@ -57,21 +57,14 @@ class AbstractConfigVar:
         bool_casted_validator: Callable = self._validate_to_bool(self.validate)
 
         if not bool_casted_validator(self.__value):
-            if (default is not None) and self._validate_to_bool(self.validate(default)):
+            if (default is not None) and bool_casted_validator(default):
                 self.__value: typehint = default
 
-            elif (
-                (getattr(loader, "defaults", None) is not None) and
-                bool_casted_validator(
-                    caster(loader.get_to_variable_root(
-                        loader.key_to_path_cast(key),
-                        lookup_at=loader.defaults
-                    ))
-                )
-            ):
-                self.__value: typehint = caster(loader.get_to_variable_root(
-                    loader.key_to_path_cast(key), lookup_at=loader.defaults
-                ))
+            elif self._validate_value_in_defaults(self.validate, self.caster, loader, key):
+                key = loader.key_to_path_cast(key)
+                var_key = loader.key_to_path_cast(key)
+
+                self.value: typehint = loader.get_to_variable_root(key, lookup_at=loader.defaults)[var_key]
 
             else:
                 raise ValueError(f"Invalid config_var for {self} in {self.loader} and default values not found")
@@ -108,7 +101,7 @@ class AbstractConfigVar:
 
     def _loader_type(self) -> Type[AbstractConfigLoader]:
         """
-        Internal function that helps us to find from what exact loader we got var from.
+        Internal function that helps us to find from what exact first_loader we got var from.
         :return:
         """
         if not isinstance(self.loader, CompositeLoader):
@@ -144,6 +137,23 @@ class AbstractConfigVar:
 
         return execute
 
+    @staticmethod
+    def _validate_value_in_defaults(validator: Callable, caster: Callable, loader: AbstractConfigLoader, key) -> bool:
+        if not hasattr(loader, 'defaults'):
+            return False
+
+        bool_casted_validator: Callable = AbstractConfigVar._validate_to_bool(validator)
+        *keys, variable_key = loader.key_to_path_cast(key)
+
+        try:
+            variable_root = loader.get_to_variable_root(keys, lookup_at=loader.defaults)
+            variable = variable_root[variable_key]
+
+        except KeyError:
+            return False
+
+        return bool_casted_validator(caster(variable))
+
     @property
     def value(self):
         return self.__value
@@ -157,7 +167,7 @@ class AbstractConfigVar:
             raise ValueError(f"Invalid config_var to be set for property {self}")
 
         self.__value = value
-        self.loader[self.key] = self.dump_caster(config_var=self)
+        self.loader[self.key] = self.dump_caster(self)
 
     def __repr__(self):
         return f"{self.key} in {self.loader} = {self.__value}"

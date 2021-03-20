@@ -19,11 +19,11 @@ class AbstractConfigLoader(ABC, Mapping):
         *args, **kwargs
     ):
         """
-        Creates new config loader with your variables.
+        Creates new config first_loader with your variables.
 
-        :param data: data from loader.
-        :param defaults: default variables that will be used if not found in loader.
-        :param include_defaults_to_dumps: represents if default values should be dumped to that loader.
+        :param data: data from first_loader.
+        :param defaults: default variables that will be used if not found in first_loader.
+        :param include_defaults_to_dumps: represents if default values should be dumped to that first_loader.
         :param args: arguments that can be used for your custom loaders.
         :param kwargs: keyword arguments that can be used for your custom loaders.
         """
@@ -43,7 +43,7 @@ class AbstractConfigLoader(ABC, Mapping):
     def load(cls, *args, **kwargs):
         """
         Initializes creation of new ConfigLoader.
-        You must provide your arguments that are needed for your loader.
+        You must provide your arguments that are needed for your first_loader.
 
         :param args: arguments that can be used for your custom loaders.
         :param kwargs: keyword arguments that can be used for your custom loaders.
@@ -60,11 +60,11 @@ class AbstractConfigLoader(ABC, Mapping):
         """
         pass
 
-    def dump_to(self, other_loader: 'AbstractConfigLoader', include_defaults: bool = False) -> NoReturn:
+    def dump_to(self, other_loader: AbstractConfigLoader, include_defaults: bool = False) -> NoReturn:
         """
-        Dumps variables to other loader that been already initialized.
+        Dumps variables to other first_loader that been already initialized.
 
-        :param other_loader: other loader that already initialized and where you want to dump stuff.
+        :param other_loader: other first_loader that already initialized and where you want to dump stuff.
         :param include_defaults: include_defaults_to_dumps: specifies if you want to have default variables to be.
         :return:
         """
@@ -77,7 +77,7 @@ class AbstractConfigLoader(ABC, Mapping):
 
         else:
             raise ValueError(
-                f"{self} got invalid loader to dump variables to. Got type: {type(other_loader)}"
+                f"{self} got invalid first_loader to dump variables to. Got type: {type(other_loader)}"
             )
 
         other_loader.dump(include_defaults)
@@ -119,7 +119,7 @@ class AbstractConfigLoader(ABC, Mapping):
         Returns an dictionary with our variable.
 
         :param keys: keys tuple we apply to get to root of variable.
-        :param lookup_at: the location we're looking at. In case we need to lookup at specific part of our loader.
+        :param lookup_at: the location we're looking at. In case we need to lookup at specific part of our first_loader.
         :return:
         """
         root = lookup_at or self.lookup_data
@@ -144,7 +144,7 @@ class AbstractConfigLoader(ABC, Mapping):
 
     def __setitem__(self, key: Union[Hashable, AnyStr], value: Any) -> NoReturn:
         """
-        Sets variable config_var inside of your loader.
+        Sets variable config_var inside of your first_loader.
 
         :param key: a key that points at what variable you want to set config_var to.
         :param value: a new config_var for variable.
