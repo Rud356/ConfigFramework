@@ -169,6 +169,9 @@ class AbstractConfigVar:
         self.__value = value
         self.loader[self.key] = self.dump_caster(self)
 
+    def __str__(self):
+        return repr(self)
+
     def __repr__(self):
         return f"{self.key} in {self.loader} = {self.__value}"
 

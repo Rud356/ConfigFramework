@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import Any, AnyStr, Callable, Hashable, List, NoReturn, Optional, Type
+
+from typing import Any, AnyStr, Callable, Hashable, Optional, Tuple, Type
 
 from ConfigFramework.abstract.abc_loader import AbstractConfigLoader
 from ConfigFramework.abstract.abc_variable import AbstractConfigVar
@@ -103,7 +104,7 @@ class BoolVar(AbstractConfigVar):
     def __init__(
         self, key: [Hashable, AnyStr], loader: AbstractConfigLoader, *,
         dump_caster: Optional[Callable, DumpCaster] = None, validator: Optional[Callable] = None,
-        default: Optional[Any] = None, true_str_values: List[AnyStr] = ("true", "t", "y", "1"), constant: bool = False
+        default: Optional[Any] = None, true_str_values: Tuple[AnyStr] = ("true", "t", "y", "1"), constant: bool = False
     ):
         """
         Initializes variable for specified first_loader and key.
@@ -120,7 +121,7 @@ class BoolVar(AbstractConfigVar):
             key, loader, typehint=bool, dump_caster=dump_caster,
             validator=validator, default=default, constant=constant
         )
-        self._true_str_values = set(true_str_values)
+        self._true_str_values: set = set(true_str_values)
 
     def caster(self, value: Any) -> bool:
         if isinstance(value, str):

@@ -1,13 +1,14 @@
 import json
 from collections import ChainMap, Mapping
-from typing import AnyStr, Dict, Union, Optional
+from functools import partial
+from typing import AnyStr, Dict, Optional, Union
 
 from ConfigFramework.abstract.abc_loader import AbstractConfigLoader
 
 
 class JsonStringLoader(AbstractConfigLoader):
     json_serialized_loader = json.loads
-    json_serialized_dumper = json.dumps
+    json_serialized_dumper = partial(json.dump, ensure_ascii=False, check_circular=True, indent=2)
 
     def __init__(self, data: Union[Dict, ChainMap, Mapping], defaults: Dict):
         super().__init__(data, defaults)
