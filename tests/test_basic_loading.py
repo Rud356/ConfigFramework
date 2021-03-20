@@ -10,8 +10,8 @@ class TestBasicLoader(unittest.TestCase):
         self.assertEqual(loader.data, {"Rud": [356, "author"]})
 
     def test_defaults(self):
-        loader = JsonStringLoader.load('{"Rud": [356, "author"]}', defaults={"Hello world": "some value"})
-        self.assertEqual(loader.lookup_data, {"Rud": [356, "author"], "Hello world": "some value"})
+        loader = JsonStringLoader.load('{"Rud": [356, "author"]}', defaults={"Hello world": "some config_var"})
+        self.assertEqual(loader.lookup_data, {"Rud": [356, "author"], "Hello world": "some config_var"})
 
     def test_getting_variable(self):
         loader = JsonStringLoader.load('{"Rud": [356, "author"]}')

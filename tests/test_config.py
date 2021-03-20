@@ -11,7 +11,7 @@ class TestConfigs(unittest.TestCase):
             rud = variables.ConfigVar("Rud", json_string_loader)
 
         config = ConfigSample()
-        self.assertTrue(config.rud == "original author")
+        self.assertTrue(config.rud.value == "original author")
 
     def test_assigning_value(self):
         json_string_loader = loaders.JsonStringLoader.load('{"Rud": "original author"}')
@@ -20,8 +20,8 @@ class TestConfigs(unittest.TestCase):
             rud = variables.ConfigVar("Rud", json_string_loader)
 
         config = ConfigSample()
-        config.rud = "Hello world"
-        self.assertTrue(config.rud == "Hello world")
+        config.rud.value = "Hello world"
+        self.assertTrue(config.rud.value == "Hello world")
 
     def test_assigning_to_constant(self):
         json_string_loader = loaders.JsonStringLoader.load('{"Rud": "original author"}')
@@ -61,4 +61,4 @@ class TestConfigs(unittest.TestCase):
                 rud356 = variables.ConfigVar("Rud356", json_string_loader)
 
         config = ConfigSample()
-        self.assertTrue(config.SubConfig.rud356 == "test")
+        self.assertTrue(config.SubConfig.rud356.value == "test")

@@ -1,8 +1,10 @@
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from collections import ChainMap, Mapping
 from functools import lru_cache
 from pathlib import Path
+from time import time
 from typing import Any, AnyStr, Dict, Hashable, NoReturn, Optional, Tuple, Union, final
 
 
@@ -25,6 +27,7 @@ class AbstractConfigLoader(ABC, Mapping):
         :param args: arguments that can be used for your custom loaders.
         :param kwargs: keyword arguments that can be used for your custom loaders.
         """
+        self.__created_at = str(time())
         self.data = data
         self.include_defaults: bool = include_defaults_to_dumps
         self.defaults = defaults
@@ -85,7 +88,7 @@ class AbstractConfigLoader(ABC, Mapping):
         it didn't find it - returns default variable.
 
         :param key: a key that points at where you want to grab variable.
-        :param default: default value.
+        :param default: default config_var.
         :return: anything lying there.
         """
         casted_key = self.key_to_path_cast(key)
@@ -141,16 +144,23 @@ class AbstractConfigLoader(ABC, Mapping):
 
     def __setitem__(self, key: Union[Hashable, AnyStr], value: Any) -> NoReturn:
         """
-        Sets variable value inside of your loader.
+        Sets variable config_var inside of your loader.
 
-        :param key: a key that points at what variable you want to set value to.
-        :param value: a new value for variable.
+        :param key: a key that points at what variable you want to set config_var to.
+        :param value: a new config_var for variable.
         :return:
         """
 
         casted_key = self.key_to_path_cast(key)
         val_root = self.get_to_variable_root(casted_key)
+
+        if casted_key[-1] not in val_root:
+            raise KeyError(f"No key {casted_key[-1]} in {self}")
+
         val_root[casted_key[-1]] = value
+
+    def __hash__(self):
+        return hash(self.__class__.__name__ + self.__created_at)
 
     def __repr__(self):
         return f"Loader: {self.__class__.__name__}"

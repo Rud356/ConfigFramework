@@ -1,7 +1,7 @@
 from __future__ import annotations
-from abc import ABC
 from functools import wraps
 from typing import Any, AnyStr, Callable, Hashable, NoReturn, Optional, TYPE_CHECKING, Type
+from ConfigFramework.loaders.composite_loader import CompositeLoader
 
 if TYPE_CHECKING:
     from .abc_loader import AbstractConfigLoader
@@ -24,40 +24,41 @@ class AbstractConfigVar:
 
         :param key: Any hashable or a string. Strings can be written as paths in case you need a variable.
          that underlies other mappings. Example of how to get such vars: `config_root/database/database_ip`.
-        :param loader: A loader that will be looked up to get vars value or to update values.
-        :param typehint: Typehint for _value field, that by default being returned.
+        :param loader: A loader that will be looked up to get vars config_var or to update values.
+        :param typehint: Typehint for __value field, that by default being returned.
         :param caster: Callable that should return variable casted to specific type (in case you need custom types).
         :param dump_caster: Callable that being called when config being dumped. Also can be instance of
          ConfigFramework.dump_caster.DumpCaster
-        :param validator: Callable that validates value or defaults in case the original value is invalid.
-        :param default: Default value that will be set, if value is invalid.
-        :param constant: Sets if variable value can be set in runtime
+        :param validator: Callable that validates config_var or defaults in case the original config_var is invalid.
+        :param default: Default config_var that will be set, if config_var is invalid.
+        :param constant: Sets if variable config_var can be set in runtime
         """
         self.key = key
         self.is_constant = constant
         self.loader: AbstractConfigLoader = loader
         self.__post_init = False
+
         # Redefining functions that we will need if they are provided
         for redefine_func_name, func in zip(
             ("caster", "dump_caster", "validate"),
             (caster, dump_caster, validator)
         ):
             if callable(func):
-                self.__dict__[redefine_func_name] = func
+                setattr(self, redefine_func_name, func)
 
         if default is not None:
-            self._value: typehint = self.caster(loader.get(key, default))
+            self.__value: typehint = self.caster(loader.get(key, default))
             default = caster(default)
 
         else:
-            self._value: typehint = self.caster(loader[key])
+            self.__value: typehint = self.caster(loader[key])
 
-        # Validation of value and defaults
+        # Validation of config_var and defaults
         bool_casted_validator: Callable = self._validate_to_bool(self.validate)
 
-        if not bool_casted_validator(self._value):
+        if not bool_casted_validator(self.__value):
             if (default is not None) and self._validate_to_bool(self.validate(default)):
-                self._value: typehint = default
+                self.__value: typehint = default
 
             elif (
                 (getattr(loader, "defaults", None) is not None) and
@@ -68,12 +69,12 @@ class AbstractConfigVar:
                     ))
                 )
             ):
-                self._value: typehint = caster(loader.get_to_variable_root(
+                self.__value: typehint = caster(loader.get_to_variable_root(
                     loader.key_to_path_cast(key), lookup_at=loader.defaults
                 ))
 
             else:
-                raise ValueError(f"Invalid value for {self} in {self.loader} and default values not found")
+                raise ValueError(f"Invalid config_var for {self} in {self.loader} and default values not found")
 
         self.__post_init = True
 
@@ -81,34 +82,54 @@ class AbstractConfigVar:
         """
         Callable that should return variable casted to specific type (in case you need custom types).
 
-        :param value: value to be casted
+        :param value: config_var to be casted
         :return:
         """
         return value
 
-    def dump_caster(self) -> Any:
+    def dump_caster(self, config_var: AbstractConfigVar) -> Any:
         """
         Callable that being called when config being dumped.
-        Nothing being passed as attribute since it should be executed after assigning the value to ConfigVar.
+        Nothing being passed as attribute since it should be executed after assigning the config_var to ConfigVar.
 
         Through self we can obtain access to useful stuff and also use DumpCaster, which allows us to assign
          specific caster for exact ConfigLoader
         :return:
         """
-        return self._value
+        return config_var.__value
 
     def validate(self, value: Any) -> bool:  # noqa
         """
-        Callable that validates value or defaults in case the original value is invalid.
-        :param value: value to be validated
+        Callable that validates config_var or defaults in case the original config_var is invalid.
+        :param value: config_var to be validated
         :return:
         """
         return True
 
+    def _loader_type(self) -> Type[AbstractConfigLoader]:
+        """
+        Internal function that helps us to find from what exact loader we got var from.
+        :return:
+        """
+        if not isinstance(self.loader, CompositeLoader):
+            return type(self.loader)
+
+        else:
+            self.loader: CompositeLoader
+            for loader in self.loader.loaders:
+                try:
+                    loader[self.key]
+
+                except KeyError:
+                    continue
+
+                else:
+                    return type(loader)
+
     @staticmethod
     def _validate_to_bool(func):
         """
-        Wrapper that returns a bool value representing if check failed or raised ValueError.
+        Wrapper that returns a bool config_var representing if check failed or raised ValueError.
 
         :param func:
         :return:
@@ -123,21 +144,23 @@ class AbstractConfigVar:
 
         return execute
 
-    def __get__(self, instance, owner=None) -> Any:
-        return self._value
+    @property
+    def value(self):
+        return self.__value
 
-    def __set__(self, instance, value: Any) -> NoReturn:
+    @value.setter
+    def value(self, value: Any) -> NoReturn:
         if self.is_constant and self.__post_init:
             raise NotImplementedError("Constants can not be assigned in runtime")
 
         if not self.validate(value):
-            raise ValueError(f"Invalid value to be set for property {self}")
+            raise ValueError(f"Invalid config_var to be set for property {self}")
 
-        self._value = value
-        self.loader[self.key] = self.dump_caster()
+        self.__value = value
+        self.loader[self.key] = self.dump_caster(config_var=self)
 
     def __repr__(self):
-        return f"{self.key} in {self.loader} = {self._value}"
+        return f"{self.key} in {self.loader} = {self.__value}"
 
 
 __all__ = ["AbstractConfigVar"]
