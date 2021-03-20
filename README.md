@@ -30,10 +30,8 @@ class Config(BaseConfig):
         are_composite_loaders_simple = variables.BoolVar("Is it simple?", composite_loader)
 
         def __post_init__(self, *args, **kwargs):
-            print(
-                "Is it simple to use composite loaders? "
-                f"{'Yes' if self.are_composite_loaders_simple.value else 'No'}"
-            )
+            yes_or_no = 'Yes' if self.are_composite_loaders_simple.value else 'No'
+            print(f"Is it simple to use composite loaders? {yes_or_no}")
             print("Nested config:", kwargs['phrase'])
 
     def __post_init__(self, *args, **kwargs):
@@ -54,10 +52,22 @@ except NotImplementedError:
 ```
 See examples with explanation [here](https://github.com/Rud356/ConfigFramework/blob/master/examples/)
 
-
 ## Supported formats
 Config formats:
 - Yaml
 - Json (strings or files)
 - Environment variables
 - Composite loading from multiple simple loaders
+
+## Features
+- Loading configs from multiple sources
+- Creating custom loaders and variables types
+- Nested configs
+- Flexible configs definition
+- Config values validations
+- Casting variables values to specific types using functions
+- Casting to acceptable variable type before dumping variable to loader
+- Default values for per loader or per variable
+- Translating one config loaders data to other (with or without including default values for each one)
+- Composite loaders that allow you to define where to look up values using only one loader, that handles
+  combining others
