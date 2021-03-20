@@ -1,4 +1,7 @@
-from ConfigFramework import variables, loaders, DumpCaster
+from typing import Any, AnyStr, Callable, Hashable, Optional, Tuple
+
+from ConfigFramework import DumpCaster, loaders, variables
+from ConfigFramework.abstract import AbstractConfigLoader, AbstractConfigVar
 
 # This is example of how you can get to some value underneath of other dictionaries, that been loaded from config
 variable = variables.ConfigVar("some/path/to/nested/value", ...)
@@ -21,3 +24,32 @@ advanced_dump_caster = DumpCaster({
 })
 
 casted_variable = variables.ConfigVar("variable", ..., caster=caster, dump_caster=advanced_dump_caster)
+
+# Variables can be created as constants or made constant afterwards
+variable_constant = variables.ConfigVar("some/path/to/nested/value", ..., constant=True)
+variable_decorated_constant = variables.constant_var(variables.ConfigVar("some/path/to/nested/value", ...))
+
+
+# Variables can be also defined by inheriting the ConfigFramework.abstract.AbstractConfigVar
+# Here's example of BoolVar inside of ConfigFramework.variables
+class BoolVar(AbstractConfigVar):
+    def __init__(
+        self, key: [Hashable, AnyStr], loader: AbstractConfigLoader, *,
+        dump_caster: Optional[Callable, DumpCaster] = None, validator: Optional[Callable] = None,
+        default: Optional[Any] = None, true_str_values: Tuple[AnyStr] = ("true", "t", "y", "1"), constant: bool = False
+    ):
+        super().__init__(
+            key, loader, typehint=bool, dump_caster=dump_caster,
+            validator=validator, default=default, constant=constant
+        )
+        self._true_str_values: set = set(true_str_values)
+
+    # Also you can define casters/dump_casters/validators right inside of your class
+    def caster(self, value: Any) -> bool:
+        if isinstance(value, str):
+            return value.lower() in self._true_str_values
+
+        if isinstance(value, (bool, int, float)):
+            return value > 0
+
+        return False
