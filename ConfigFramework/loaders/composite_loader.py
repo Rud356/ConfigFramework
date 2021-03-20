@@ -26,7 +26,7 @@ class CompositeLoader(AbstractConfigLoader):
 
     def __setitem__(self, key, value):
         """
-        Sets variable config_var inside of your loaders that are hidden underneath composite loader.
+        Sets variable config_var inside of your loaders that are hidden underneath composite first_loader.
 
         :param key: a key that points at what variable you want to set config_var to.
         :param value: a new config_var for variable.
