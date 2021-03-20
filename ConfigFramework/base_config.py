@@ -1,7 +1,6 @@
 from __future__ import annotations
-from inspect import signature
-from typing import Set, Type
-from copy import deepcopy
+
+from typing import Optional, Set, Type, NoReturn
 
 from ConfigFramework.abstract.abc_loader import AbstractConfigLoader
 from ConfigFramework.abstract.abc_variable import AbstractConfigVar
@@ -32,10 +31,12 @@ class BaseConfig:
             obj = getattr(self, key, None)
 
             if isinstance(obj, AbstractConfigVar):
+                obj: AbstractConfigVar
                 self._variables.add(obj)
                 self._loaders.add(obj.loader)
 
             if issubclass(obj.__class__, BaseConfig):
+                obj: Type[BaseConfig]
                 # initializing class with config underlying our main config
                 # here's fix for possible circular class initialization
                 __passed_classes.add(self.__class__)
@@ -46,7 +47,7 @@ class BaseConfig:
                 self.__dict__[key] = obj(*args, **kwargs, __passed_classes=__passed_classes)
                 self._sub_configs.add(self.__dict__[key])
 
-    def __post_init__(self, *args, **kwargs):
+    def __post_init__(self, *args, **kwargs) -> NoReturn:
         """
         Post-initialization hook that receives all args and kwargs from initialization.
 
@@ -56,10 +57,11 @@ class BaseConfig:
         """
         pass
 
-    def dump(self, include_defaults: bool = False):
+    def dump(self, include_defaults: Optional[bool] = None) -> NoReturn:
         """
         Writes variables updated values to their.
-        :param include_defaults:
+        :param include_defaults: represents dumping argument for all loader. In case you want to stay with including
+         defaults defined by loader class - leave None config_var.
         :return:
         """
         for loader in self._loaders:

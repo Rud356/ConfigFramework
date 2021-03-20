@@ -24,14 +24,14 @@ class ConfigVar(AbstractConfigVar):
 
         :param key: Any hashable or a string. Strings can be written as paths in case you need a variable.
          that underlies other mappings. Example of how to get such vars: `config_root/database/database_ip`.
-        :param loader: A loader that will be looked up to get vars value or to update values.
-        :param typehint: Typehint for _value field, that by default being returned.
+        :param loader: A loader that will be looked up to get vars config_var or to update values.
+        :param typehint: Typehint for __value field, that by default being returned.
         :param caster: Callable that should return variable casted to specific type (in case you need custom types).
         :param dump_caster: Callable that being called when config being dumped. Also can be instance of
          ConfigFramework.dump_caster.DumpCaster
-        :param validator: Callable that validates value or defaults in case the original value is invalid.
-        :param default: Default value that will be set, if value is invalid.
-        :param constant: Sets if variable value can be set in runtime
+        :param validator: Callable that validates config_var or defaults in case the original config_var is invalid.
+        :param default: Default config_var that will be set, if config_var is invalid.
+        :param constant: Sets if variable config_var can be set in runtime
         """
         super().__init__(
             key, loader, typehint=typehint, caster=caster,
@@ -41,7 +41,7 @@ class ConfigVar(AbstractConfigVar):
 
 class IntVar(AbstractConfigVar):
     """
-    Represents an integer value in your config.
+    Represents an integer config_var in your config.
 
     """
     def __init__(
@@ -54,27 +54,29 @@ class IntVar(AbstractConfigVar):
 
         :param key: Any hashable or a string. Strings can be written as paths in case you need a variable.
          that underlies other mappings. Example of how to get such vars: `config_root/database/database_ip`.
-        :param loader: A loader that will be looked up to get vars value or to update values.
+        :param loader: A loader that will be looked up to get vars config_var or to update values.
         :param dump_caster: Callable that being called when config being dumped. Also can be instance of
          ConfigFramework.dump_caster.DumpCaster
-        :param validator: Callable that validates value or defaults in case the original value is invalid.
-        :param default: Default value that will be set, if value is invalid.
+        :param validator: Callable that validates config_var or defaults in case the original config_var is invalid.
+        :param default: Default config_var that will be set, if config_var is invalid.
         """
         super().__init__(
             key, loader, caster=int, typehint=int, dump_caster=dump_caster,
             validator=validator, default=default, constant=constant
         )
 
-    def __get__(self, instance, owner=None) -> int:
-        return super(IntVar, self).__get__(instance)
+    @property
+    def value(self) -> int:
+        return super().value
 
-    def __set__(self, instance, value: int) -> NoReturn:
-        super(IntVar, self).__set__(instance, value)
+    @value.setter
+    def value(self, val: int) -> NoReturn:
+        super().value = val
 
 
 class FloatVar(AbstractConfigVar):
     """
-    Represents an float value in your config.
+    Represents an float config_var in your config.
 
     """
     def __init__(
@@ -87,12 +89,12 @@ class FloatVar(AbstractConfigVar):
 
         :param key: Any hashable or a string. Strings can be written as paths in case you need a variable.
          that underlies other mappings. Example of how to get such vars: `config_root/database/database_ip`.
-        :param loader: A loader that will be looked up to get vars value or to update values.
+        :param loader: A loader that will be looked up to get vars config_var or to update values.
         :param dump_caster: Callable that being called when config being dumped. Also can be instance of
          ConfigFramework.dump_caster.DumpCaster
-        :param validator: Callable that validates value or defaults in case the original value is invalid.
-        :param default: Default value that will be set, if value is invalid.
-        :param constant: Sets if variable value can be set in runtime
+        :param validator: Callable that validates config_var or defaults in case the original config_var is invalid.
+        :param default: Default config_var that will be set, if config_var is invalid.
+        :param constant: Sets if variable config_var can be set in runtime
         """
 
         super().__init__(
@@ -100,11 +102,13 @@ class FloatVar(AbstractConfigVar):
             validator=validator, default=default, constant=constant
         )
 
-    def __get__(self, instance, owner=None) -> float:
-        return super(FloatVar, self).__get__(instance)
+    @property
+    def value(self) -> float:
+        return super().value
 
-    def __set__(self, instance, value: float) -> NoReturn:
-        super(FloatVar, self).__set__(instance, value)
+    @value.setter
+    def value(self, val: float) -> NoReturn:
+        super().value = val
 
 
 class BoolVar(AbstractConfigVar):
@@ -122,11 +126,11 @@ class BoolVar(AbstractConfigVar):
 
         :param key: Any hashable or a string. Strings can be written as paths in case you need a variable.
          that underlies other mappings. Example of how to get such vars: `config_root/database/database_ip`.
-        :param loader: A loader that will be looked up to get vars value or to update values.
+        :param loader: A loader that will be looked up to get vars config_var or to update values.
         :param dump_caster: Callable that being called when config being dumped. Also can be instance of
          ConfigFramework.dump_caster.DumpCaster
-        :param validator: Callable that validates value or defaults in case the original value is invalid.
-        :param default: Default value that will be set, if value is invalid.
+        :param validator: Callable that validates config_var or defaults in case the original config_var is invalid.
+        :param default: Default config_var that will be set, if config_var is invalid.
         """
         super().__init__(
             key, loader, typehint=bool, dump_caster=dump_caster,
@@ -143,11 +147,13 @@ class BoolVar(AbstractConfigVar):
 
         return False
 
-    def __get__(self, instance, owner=None) -> bool:
-        return super(BoolVar, self).__get__(instance)
+    @property
+    def value(self) -> bool:
+        return super().value
 
-    def __set__(self, instance, value: bool) -> NoReturn:
-        super(BoolVar, self).__set__(instance, value)
+    @value.setter
+    def value(self, val: Any) -> NoReturn:
+        super().value = val
 
 
 def constant_var(config_var: AbstractConfigVar) -> AbstractConfigVar:
