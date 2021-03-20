@@ -3,7 +3,6 @@ import ConfigFramework
 
 with open('README.md') as f:
     text = f.read()
-print(setuptools.find_packages(where="./Configframework"))
 
 setuptools.setup(
     name="ConfigFramework",
