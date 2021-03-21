@@ -117,11 +117,11 @@ class BoolVar(AbstractConfigVar):
         :param validator: Callable that validates config_var or defaults in case the original config_var is invalid.
         :param default: Default config_var that will be set, if config_var is invalid.
         """
+        self._true_str_values: set = set(true_str_values)
         super().__init__(
             key, loader, typehint=bool, dump_caster=dump_caster,
             validator=validator, default=default, constant=constant
         )
-        self._true_str_values: set = set(true_str_values)
 
     def caster(self, value: Any) -> bool:
         if isinstance(value, str):
