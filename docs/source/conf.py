@@ -19,8 +19,7 @@ if not on_rtd:
     sys.path.insert(0, os.path.abspath(os.path.join('..', '..', '..', 'ConfigFramework')))
 
 else:
-    sys.path.insert(0, os.path.abspath("./ConfigFramework"))
-    sys.path.insert(0, os.path.abspath("."))
+    sys.path.insert(0, os.path.abspath('../../ConfigFramework/'))
 
 # -- Project information -----------------------------------------------------
 
