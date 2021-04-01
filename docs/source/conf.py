@@ -12,7 +12,6 @@
 
 import os
 import sys
-import importlib
 from sphinx.ext import apidoc
 
 sys.path.insert(0, os.path.abspath(os.path.join('..', '..', '..', 'ConfigFramework')))
@@ -45,7 +44,6 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
-
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -57,7 +55,6 @@ html_theme = 'alabaster'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 autodoc_member_order = 'bysource'
-
 
 html_static_path = ['_static']
 apidoc_module_dir = "./../"
