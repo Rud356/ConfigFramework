@@ -5,7 +5,7 @@ from collections import ChainMap, Mapping
 from functools import lru_cache
 from pathlib import Path
 from time import time
-from typing import Any, AnyStr, Dict, Hashable, NoReturn, Optional, Tuple, Union, final
+from typing import Any, AnyStr, Dict, Hashable, NoReturn, Optional, Tuple, Union
 
 
 class AbstractConfigLoader(ABC, Mapping):
@@ -97,7 +97,6 @@ class AbstractConfigLoader(ABC, Mapping):
         return val_root.get(casted_key[-1], default)
 
     @staticmethod
-    @final
     @lru_cache(maxsize=None)
     def key_to_path_cast(key: Union[AnyStr, Hashable]) -> Union[Tuple[AnyStr, ...], Tuple[Hashable, ...]]:
         """
