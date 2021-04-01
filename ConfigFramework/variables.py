@@ -137,8 +137,8 @@ def constant_var(config_var: AbstractConfigVar) -> AbstractConfigVar:
     """
     Makes variable unable to be assigned on runtime.
 
-    :param config_var: variable that already been initialized.
-    :return:
+    :param config_var: variable instance.
+    :return: same ConfigVar instance, but its value can't be reassigned on a runtime.
     """
     config_var.is_constant = True
     return config_var
