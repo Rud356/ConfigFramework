@@ -15,7 +15,9 @@ import sys
 from sphinx.ext import apidoc
 
 sys.path.insert(0, os.path.abspath(os.path.join('..', '..', '..', 'ConfigFramework')))
-print(sys.path[0])
+sys.path.insert(1, os.path.abspath("../"))
+sys.path.insert(0, os.path.abspath("../../"))
+sys.path.insert(0, os.path.abspath("../../../"))
 
 # -- Project information -----------------------------------------------------
 
