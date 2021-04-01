@@ -15,11 +15,8 @@ import sys
 from sphinx.ext import apidoc
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-if not on_rtd:
-    sys.path.insert(0, os.path.abspath(os.path.join('..', '..', '..', 'ConfigFramework')))
+sys.path.insert(0, os.path.abspath(os.path.join('..', '..', '..', 'ConfigFramework')))
 
-else:
-    sys.path.insert(0, os.path.abspath('../../ConfigFramework/ConfigFramework/'))
 
 # -- Project information -----------------------------------------------------
 
@@ -70,10 +67,13 @@ autosummary_generate = True
 
 
 def setup(app):
+    config_framework_dir = '../ConfigFramework'
+    if on_rtd:
+        config_framework_dir = "ConfigFramework/"
     apidoc.main([
         '-f', '-T', '-E', '-M',
         '-o', './source/',
-        '../ConfigFramework',
+        config_framework_dir,
     ])
 
     if on_rtd:
