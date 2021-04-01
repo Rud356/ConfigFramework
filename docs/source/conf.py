@@ -15,7 +15,7 @@ import sys
 from sphinx.ext import apidoc
 
 sys.path.insert(0, os.path.abspath(os.path.join('..', '..', '..', 'ConfigFramework')))
-print(sys.path[0])
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
 # -- Project information -----------------------------------------------------
 
@@ -71,3 +71,6 @@ def setup(app):
         '-o', './source/',
         '../ConfigFramework',
     ])
+
+    if on_rtd:
+        os.chdir("./docs")
