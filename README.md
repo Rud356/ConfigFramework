@@ -14,6 +14,15 @@ Pypi link: https://pypi.org/project/ConfigFramework
 
 ```pip install ConfigFramework```
 
+## Documentation
+[ConfigFrameworks stable branch documentation](https://configframework.readthedocs.io)
+
+### How to build docs for local usage
+1. Install dev-requirements.txt via `pip install -r dev-requirements.txt`
+2. Change a current directory to docs/
+3. Execute `make html`
+4. Open build/html folder and then open index.html in your browser
+
 ## Example of usage
 
 Here's basic example:

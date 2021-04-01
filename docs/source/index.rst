@@ -10,9 +10,17 @@ Welcome to ConfigFramework's documentation!
 ConfigFramework
 ===============
 .. |PyPI version| image:: https://img.shields.io/pypi/v/ConfigFramework/?style=flat
+    :target: https://img.shields.io/pypi/v/ConfigFramework
+    :alt: PyPI version
 .. |Python version| image:: https://img.shields.io/pypi/pyversions/ConfigFramework/?style=flat
+    :target: https://img.shields.io/pypi/pyversions/ConfigFramework
+    :alt: Python version
 .. |PyPi downloads/m| image:: https://img.shields.io/pypi/dm/ConfigFramework/?style=flat
+    :target: https://img.shields.io/pypi/dm/ConfigFramework/
+    :alt: PyPi downloads/m
 .. |Issues| image:: https://img.shields.io/github/issues/Rud356/ConfigFramework/?style=flat
+    :target: https://img.shields.io/github/issues/Rud356/ConfigFramework/
+    :alt: Issues count
 
 A small and simple framework to build your configs.
 
