@@ -12,15 +12,19 @@
 
 import os
 import sys
-from sphinx.ext import apidoc
+import glob
 from pathlib import Path
+
+from sphinx.ext import apidoc
 
 import sphinx_rtd_theme
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 config_framework_path = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(config_framework_path))
+sys.path.insert(1, str(Path(__file__).parent))
 
+import ConfigFramework
 
 # -- Project information -----------------------------------------------------
 
@@ -29,10 +33,13 @@ copyright = '2021, Rud356'
 author = 'Rud356'
 
 # The full version, including alpha/beta/rc tags
-release = '2.0.2'
+release = ConfigFramework.__version__
 
 
 # -- General configuration ---------------------------------------------------
+
+master_doc = 'index'
+source_suffix = '.rst'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -48,7 +55,7 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns = ['_build', '**tests**', '**setup**']
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -66,10 +73,11 @@ html_static_path = ['_static']
 apidoc_module_dir = "./../"
 apidoc_output_dir = './source/'
 apidoc_separate_modules = True
-apidoc_excluded_paths = ['tests', 'builds', 'setup.py']
+apidoc_excluded_paths = ['tests', 'setup.py']
 autodoc_default_flags = ['members']
 autosummary_generate = True
 add_module_names = False
+class_members_toctree = False
 
 
 def setup(app):

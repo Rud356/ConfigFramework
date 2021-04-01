@@ -2,13 +2,10 @@ Welcome to ConfigFramework's documentation!
 ===========================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
-    index.rst
     ConfigFramework.rst
     ConfigFramework.loaders.rst
     ConfigFramework.abstract.rst
+    :maxdepth: 2
 
 ConfigFramework
 ===============
