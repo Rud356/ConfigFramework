@@ -66,7 +66,7 @@ class AbstractConfigLoader(ABC, Mapping):
 
         :param other_loader: other first_loader that already initialized and where you want to dump stuff.
         :param include_defaults: include_defaults_to_dumps: specifies if you want to have default variables to be.
-        :return:
+        :return: nothing.
         """
         if isinstance(other_loader, AbstractConfigLoader):
             if include_defaults:
@@ -119,7 +119,7 @@ class AbstractConfigLoader(ABC, Mapping):
 
         :param keys: keys tuple we apply to get to root of variable.
         :param lookup_at: the location we're looking at. In case we need to lookup at specific part of our first_loader.
-        :return:
+        :return: a dictionary which layer should contain our variable.
         """
         root = lookup_at or self.lookup_data
         # Last part of key must be the variable
@@ -133,8 +133,8 @@ class AbstractConfigLoader(ABC, Mapping):
         Returns an item under specified key or key as path and if
         it didn't find it - raises KeyError.
 
-        :param key:
-        :return:
+        :param key: variable key.
+        :return: value.
         """
         casted_key = self.key_to_path_cast(key)
         val_root = self.get_to_variable_root(casted_key)
@@ -147,7 +147,7 @@ class AbstractConfigLoader(ABC, Mapping):
 
         :param key: a key that points at what variable you want to set config_var to.
         :param value: a new config_var for variable.
-        :return:
+        :return: nothing.
         """
 
         casted_key = self.key_to_path_cast(key)

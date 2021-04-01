@@ -18,6 +18,7 @@ class DumpCaster:
         :param casters_dict: a dictionary with AbstractConfigLoader or '*' as key and callable, that returns something
          as config_var.
          '*' key represents default caster for any unlisted caster.
+
         """
         self.casters_mapping = casters_dict
 

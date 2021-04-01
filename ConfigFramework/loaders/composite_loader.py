@@ -30,7 +30,7 @@ class CompositeLoader(AbstractConfigLoader):
 
         :param key: a key that points at what variable you want to set config_var to.
         :param value: a new config_var for variable.
-        :return:
+        :return: nothing.
         """
 
         for loader in self.loaders:

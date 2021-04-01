@@ -61,9 +61,10 @@ class BaseConfig:
     def dump(self, include_defaults: Optional[bool] = None) -> NoReturn:
         """
         Writes variables updated values to their.
-        :param include_defaults: represents dumping argument for all first_loader. In case you want to stay with including
-         defaults defined by first_loader class - leave None config_var.
-        :return:
+        :param include_defaults: represents dumping argument for all first_loader.
+        In case you want to stay with including defaults defined
+        by first_loader class - leave None config_var.
+        :return: nothing.
         """
         for loader in self._loaders:
             if loader.include_defaults is None:

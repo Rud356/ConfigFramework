@@ -12,8 +12,10 @@
 
 import os
 import sys
+import importlib
+from sphinx.ext import apidoc
 
-sys.path.insert(0, os.path.abspath('./../..'))
+sys.path.insert(0, os.path.abspath(os.path.join('..', '..', '..', 'ConfigFramework')))
 
 # -- Project information -----------------------------------------------------
 
@@ -54,9 +56,20 @@ html_theme = 'alabaster'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
+autodoc_member_order = 'bysource'
+
+
 html_static_path = ['_static']
 apidoc_module_dir = "./../"
 apidoc_output_dir = './source/'
 apidoc_separate_modules = True
 apidoc_excluded_paths = ['tests', 'docs', 'setup.py']
 autosummary_generate = True
+
+
+def setup(app):
+    apidoc.main([
+        '-f', '-T', '-E', '-M',
+        '-o', './source/',
+        '../ConfigFramework',
+    ])

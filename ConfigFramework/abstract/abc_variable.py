@@ -76,7 +76,7 @@ class AbstractConfigVar:
         Callable that should return variable casted to specific type (in case you need custom types).
 
         :param value: config_var to be casted
-        :return:
+        :return: value casted to whatever type you need.
         """
         return value
 
@@ -86,8 +86,8 @@ class AbstractConfigVar:
         Nothing being passed as attribute since it should be executed after assigning the config_var to ConfigVar.
 
         Through self we can obtain access to useful stuff and also use DumpCaster, which allows us to assign
-         specific caster for exact ConfigLoader
-        :return:
+        specific caster for exact ConfigLoader
+        :return: value casted to whatever type you need to save value.
         """
         return config_var.__value
 
@@ -95,14 +95,14 @@ class AbstractConfigVar:
         """
         Callable that validates config_var or defaults in case the original config_var is invalid.
         :param value: config_var to be validated
-        :return:
+        :return: bool value representing if variable has a valid value.
         """
         return True
 
     def _loader_type(self) -> Type[AbstractConfigLoader]:
         """
         Internal function that helps us to find from what exact first_loader we got var from.
-        :return:
+        :return: loader class.
         """
         if not isinstance(self.loader, CompositeLoader):
             return type(self.loader)
@@ -124,8 +124,9 @@ class AbstractConfigVar:
         """
         Wrapper that returns a bool config_var representing if check failed or raised ValueError.
 
-        :param func:
-        :return:
+        :param func: function that is wrapped for specific validator. Will be used in checking if value is correct
+        to apply defaults.
+        :return: callable.
         """
         @wraps(func)
         def execute(*args, **kwargs):
@@ -155,11 +156,22 @@ class AbstractConfigVar:
         return bool_casted_validator(caster(variable))
 
     @property
-    def value(self):
+    def value(self) -> Any:
+        """
+        Gives access to casted value.
+
+        :return: any value from config, that been casted and validated.
+        """
         return self.__value
 
     @value.setter
     def value(self, value: Any) -> NoReturn:
+        """
+        Sets a new value to config variable and updates its value in loader with casting it to needed type.
+
+        :param value:
+        :return:
+        """
         if self.is_constant and self.__post_init:
             raise NotImplementedError("Constants can not be assigned in runtime")
 
