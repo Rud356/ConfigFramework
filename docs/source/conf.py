@@ -15,7 +15,12 @@ import sys
 from sphinx.ext import apidoc
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-sys.path.insert(0, os.path.abspath(os.path.join('..', '..', '..', 'ConfigFramework')))
+
+if not on_rtd:
+    sys.path.insert(0, os.path.abspath(os.path.join('..', '..', '..', 'ConfigFramework')))
+
+else:
+    sys.path.insert(0, os.path.abspath(os.path.join('..', '..', 'ConfigFramework/')))
 
 
 # -- Project information -----------------------------------------------------
