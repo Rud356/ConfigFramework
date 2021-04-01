@@ -75,9 +75,8 @@ Example of usage
 
 See examples with explanation `here <https://github.com/Rud356/ConfigFramework/blob/master/examples/>`_
 
-Supported formats
+Supported config formats
 =================
-Config formats:
 - Yaml
 - Json (strings or files)
 - Environment variables
