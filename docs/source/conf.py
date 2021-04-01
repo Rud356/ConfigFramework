@@ -20,6 +20,7 @@ if not on_rtd:
 
 else:
     sys.path.insert(0, os.path.abspath("./ConfigFramework"))
+    sys.path.insert(0, os.path.abspath("."))
 
 # -- Project information -----------------------------------------------------
 
@@ -75,3 +76,6 @@ def setup(app):
         '-o', './source/',
         '../ConfigFramework',
     ])
+
+    if on_rtd:
+        os.chdir("./docs")
