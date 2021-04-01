@@ -12,10 +12,9 @@
 
 import os
 import sys
-from sphinx.ext import apidoc
+import sphinx_rtd_theme
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-
 if not on_rtd:
     sys.path.insert(0, os.path.abspath(os.path.join('..', '..', '..', 'ConfigFramework')))
 
@@ -56,7 +55,7 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -68,16 +67,6 @@ apidoc_module_dir = "./../"
 apidoc_output_dir = './source/'
 apidoc_separate_modules = True
 apidoc_excluded_paths = ['tests', 'docs', 'setup.py']
+autodoc_default_flags = ['members']
 autosummary_generate = True
-
-
-def setup(app):
-    config_framework_dir = '../ConfigFramework'
-    apidoc.main([
-        '-f', '-T', '-E', '-M',
-        '-o', './source/',
-        config_framework_dir,
-    ])
-
-    if on_rtd:
-        os.chdir("./docs")
+add_module_names = False
