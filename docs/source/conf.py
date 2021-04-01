@@ -73,9 +73,6 @@ autosummary_generate = True
 
 def setup(app):
     config_framework_dir = '../ConfigFramework'
-
-    if on_rtd:
-        config_framework_dir = "ConfigFramework/"
     apidoc.main([
         '-f', '-T', '-E', '-M',
         '-o', './source/',
