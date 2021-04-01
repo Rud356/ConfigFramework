@@ -12,14 +12,14 @@
 
 import os
 import sys
+from sphinx.ext import apidoc
+from pathlib import Path
+
 import sphinx_rtd_theme
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-if not on_rtd:
-    sys.path.insert(0, os.path.abspath(os.path.join('..', '..', '..', 'ConfigFramework')))
-
-else:
-    sys.path.insert(0, os.path.abspath("ConfigFramework"))
+config_framework_path = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(config_framework_path))
 
 
 # -- Project information -----------------------------------------------------
@@ -66,7 +66,16 @@ html_static_path = ['_static']
 apidoc_module_dir = "./../"
 apidoc_output_dir = './source/'
 apidoc_separate_modules = True
-apidoc_excluded_paths = ['tests', 'docs', 'setup.py']
+apidoc_excluded_paths = ['tests', 'builds', 'setup.py']
 autodoc_default_flags = ['members']
 autosummary_generate = True
 add_module_names = False
+
+
+def setup(app):
+    config_framework_dir = '../ConfigFramework'
+    apidoc.main([
+        '-f', '-T', '-E', '-M',
+        '-o', './source/',
+        config_framework_dir,
+    ])
