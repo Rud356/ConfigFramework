@@ -49,7 +49,8 @@ class Config(BaseConfig):
             print("Nested config:", kwargs['phrase'])
 
     def __post_init__(self, *args, **kwargs):
-        print(f"ConfigFramework is {'simple' if self.is_simple.value else 'hard'} and {self.is_useful.value} useful")
+        is_simple_to_str = 'simple' if self.is_simple.value else 'hard'
+        print(f"ConfigFramework is {is_simple_to_str} and {self.is_useful.value} useful")
         print(f"Here's pi = {self.pi.value}")
         print("Main config:", kwargs['phrase'])
 

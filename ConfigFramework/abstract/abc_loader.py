@@ -53,10 +53,10 @@ class AbstractConfigLoader(ABC, Mapping):
     @abstractmethod
     def dump(self, include_defaults: bool = False) -> NoReturn:
         """
-        Dumps updated variables.
+        Dumps updated variables to loader.
 
         :param include_defaults: specifies if you want to have default variables to be dumped.
-        :return:
+        :return: nothing.
         """
         pass
 

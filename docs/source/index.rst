@@ -9,16 +9,16 @@ Welcome to ConfigFramework's documentation!
 
 ConfigFramework
 ===============
-.. |PyPI version| image:: https://img.shields.io/pypi/v/ConfigFramework/?style=flat
+.. |PyPI version| image:: https://img.shields.io/pypi/v/ConfigFramework/
     :target: https://img.shields.io/pypi/v/ConfigFramework
     :alt: PyPI version
-.. |Python version| image:: https://img.shields.io/pypi/pyversions/ConfigFramework/?style=flat
+.. |Python version| image:: https://img.shields.io/pypi/pyversions/ConfigFramework/
     :target: https://img.shields.io/pypi/pyversions/ConfigFramework
     :alt: Python version
-.. |PyPi downloads/m| image:: https://img.shields.io/pypi/dm/ConfigFramework/?style=flat
+.. |PyPi downloads/m| image:: https://img.shields.io/pypi/dm/ConfigFramework/
     :target: https://img.shields.io/pypi/dm/ConfigFramework/
     :alt: PyPi downloads/m
-.. |Issues| image:: https://img.shields.io/github/issues/Rud356/ConfigFramework/?style=flat
+.. |Issues| image:: https://img.shields.io/github/issues/Rud356/ConfigFramework/
     :target: https://img.shields.io/github/issues/Rud356/ConfigFramework/
     :alt: Issues count
 
@@ -36,7 +36,8 @@ Pypi link: https://pypi.org/project/ConfigFramework
 Example of usage
 ================
 
-.. code-block::python
+.. code-block:: python
+
     from ConfigFramework import loaders, variables, BaseConfig
 
 
@@ -59,7 +60,8 @@ Example of usage
                 print("Nested config:", kwargs['phrase'])
 
         def __post_init__(self, *args, **kwargs):
-            print(f"ConfigFramework is {'simple' if self.is_simple.value else 'hard'} and {self.is_useful.value} useful")
+            is_simple_to_str = 'simple' if self.is_simple.value else 'hard'
+            print(f"ConfigFramework is {is_simple_to_str} and {self.is_useful.value} useful")
             print(f"Here's pi = {self.pi.value}")
             print("Main config:", kwargs['phrase'])
 
@@ -72,11 +74,10 @@ Example of usage
     except NotImplementedError:
         print("You can not set value to constants on runtime")
 
-
 See examples with explanation `here <https://github.com/Rud356/ConfigFramework/blob/master/examples/>`_
 
 Supported config formats
-=================
+========================
 - Yaml
 - Json (strings or files)
 - Environment variables

@@ -46,7 +46,8 @@ source_suffix = '.rst'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.autosummary'
+    'sphinx.ext.autosummary',
+    'sphinx.ext.viewcode',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -78,6 +79,7 @@ autodoc_default_flags = ['members']
 autosummary_generate = True
 add_module_names = False
 class_members_toctree = False
+html_show_sourcelink = False
 
 
 def setup(app):

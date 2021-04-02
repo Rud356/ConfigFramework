@@ -75,7 +75,7 @@ class AbstractConfigVar:
         """
         Callable that should return variable casted to specific type (in case you need custom types).
 
-        :param value: config_var to be casted
+        :param value: config_var to be casted.
         :return: value casted to whatever type you need.
         """
         return value
@@ -86,7 +86,7 @@ class AbstractConfigVar:
         Nothing being passed as attribute since it should be executed after assigning the config_var to ConfigVar.
 
         Through self we can obtain access to useful stuff and also use DumpCaster, which allows us to assign
-        specific caster for exact ConfigLoader
+        specific caster for exact ConfigLoader.
         :return: value casted to whatever type you need to save value.
         """
         return config_var.__value
@@ -94,7 +94,8 @@ class AbstractConfigVar:
     def validate(self, value: Any) -> bool:  # noqa
         """
         Callable that validates config_var or defaults in case the original config_var is invalid.
-        :param value: config_var to be validated
+
+        :param value: config_var to be validated.
         :return: bool value representing if variable has a valid value.
         """
         return True
@@ -102,6 +103,7 @@ class AbstractConfigVar:
     def _loader_type(self) -> Type[AbstractConfigLoader]:
         """
         Internal function that helps us to find from what exact first_loader we got var from.
+
         :return: loader class.
         """
         if not isinstance(self.loader, CompositeLoader):
@@ -169,8 +171,8 @@ class AbstractConfigVar:
         """
         Sets a new value to config variable and updates its value in loader with casting it to needed type.
 
-        :param value:
-        :return:
+        :param value: a new value to be set and validated.
+        :return: nothing.
         """
         if self.is_constant and self.__post_init:
             raise NotImplementedError("Constants can not be assigned in runtime")

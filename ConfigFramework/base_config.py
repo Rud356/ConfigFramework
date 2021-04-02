@@ -15,9 +15,9 @@ class BaseConfig:
         """
         Initializes config class.
 
-        :param args: args
-        :param __passed_classes: set of classes, that already been initialized
-        :param kwargs: kwargs
+        :param args: args.
+        :param __passed_classes: set of classes, that already been initialized.
+        :param kwargs: kwargs.
         """
         self._variables: Set[AbstractConfigVar] = set()
         self._loaders: Set[AbstractConfigLoader] = set()
@@ -52,18 +52,20 @@ class BaseConfig:
         """
         Post-initialization hook that receives all args and kwargs from initialization.
 
-        :param args: arguments
-        :param kwargs: keyword args
-        :return:
+        :param args: arguments.
+        :param kwargs: keyword args.
+        :return: nothing.
         """
         pass
 
     def dump(self, include_defaults: Optional[bool] = None) -> NoReturn:
         """
         Writes variables updated values to their.
+
         :param include_defaults: represents dumping argument for all first_loader.
-        In case you want to stay with including defaults defined
-        by first_loader class - leave None config_var.
+            In case you want to stay with including defaults defined
+            by first_loader class - leave None config_var.
+
         :return: nothing.
         """
         for loader in self._loaders:

@@ -34,7 +34,8 @@ class Config(BaseConfig):
 
     def __post_init__(self, *args, **kwargs):
         # Here you can write some code that will be ran after initialization of config class
-        print(f"ConfigFramework is {'simple' if self.is_simple.value else 'hard'} and {self.is_useful.value} useful")
+        is_simple_to_str = 'simple' if self.is_simple.value else 'hard'
+        print(f"ConfigFramework is {is_simple_to_str} and {self.is_useful.value} useful")
         print(f"Here's pi = {self.pi.value}")
         print("Main config:", kwargs['phrase'])
 
