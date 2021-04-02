@@ -15,6 +15,6 @@ class EnvLoader(AbstractConfigLoader):
         Left only for compatibility purpose.
 
         :param include_defaults: doesn't affect anything as stated before.
-        :return:
+        :return: nothing.
         """
         pass
