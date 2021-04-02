@@ -35,7 +35,19 @@ class BaseConfig:
                 self._loaders.add(obj.loader)
 
             if type(obj) is type and BaseConfig.__subclasscheck__(obj):
-                self.__dict__[key] = obj(*args, **kwargs)
+                # initializing class with config underlying our main config
+                # here's fix for possible circular class initialization
+                if not hasattr(self, '__passed_classes'):
+                    self.__passed_classes = set()
+
+                self.__passed_classes.add(self.__class__)
+                if obj in self.__passed_classes:
+                    # should fix recursive config classes referencing
+                    continue
+
+                new_config = obj(*args, **kwargs)
+                new_config.__passed_classes = self.__passed_classes
+                self.__dict__[key] = new_config
 
     def __post_init__(self, *args, **kwargs) -> NoReturn:
         """
