@@ -48,7 +48,7 @@ class AbstractConfigVar:
 
         if default is not None:
             self.__value: typehint = self.caster(loader.get(key, default))
-            default = caster(default)
+            default = self.caster(default)
 
         else:
             self.__value: typehint = self.caster(loader[key])
