@@ -11,7 +11,7 @@ class BaseConfig:
     Base class for configs you must inherit from if you want to write your own config class.
 
     """
-    def __init__(self, *args, __passed_classes: Set[Type] = None, **kwargs):
+    def __init__(self, *args, **kwargs):
         """
         Initializes config class.
 
@@ -23,10 +23,10 @@ class BaseConfig:
         self._loaders: Set[AbstractConfigLoader] = set()
         self._sub_configs: Set[BaseConfig] = set()
 
-        self.__init_variables_of_config(args, kwargs, __passed_classes)
+        self.__init_variables_of_config(args, kwargs)
         self.__post_init__(*args, **kwargs)
 
-    def __init_variables_of_config(self, args, kwargs, __passed_classes: Set[Type]):
+    def __init_variables_of_config(self, args, kwargs):
         for key in dir(self):
             obj = getattr(self, key, None)
 
