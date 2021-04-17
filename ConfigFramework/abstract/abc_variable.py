@@ -84,9 +84,11 @@ class AbstractConfigVar:
         """
         Callable that being called when config being dumped.
         Nothing being passed as attribute since it should be executed after assigning the config_var to ConfigVar.
+        Through self we can get to config variables value, but not when we use DumpCaster, which allows us to assign
+        specific caster for exact ConfigLoader and so parameter `config_var`
+        is used to pass config variable that is going to be casted for compatibility with DumpCaster.
 
-        Through self we can obtain access to useful stuff and also use DumpCaster, which allows us to assign
-        specific caster for exact ConfigLoader.
+        :param config_var: Config variable that going to be casted.
         :return: value casted to whatever type you need to save value.
         """
         return config_var.__value
