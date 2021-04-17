@@ -26,7 +26,7 @@ ConfigFramework
 A small and simple framework to build your configs.
 
 This project been created mostly because of me myself needing some simplistic
-and same time powerful enough tool to create configs, validate them and to have simple interface.
+and at the same time powerful enough tool to create configs, validate them through have simple interface.
 
 Installing
 ==========
