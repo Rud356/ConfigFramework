@@ -1,5 +1,6 @@
 import json
-from collections import ChainMap, Mapping
+from collections import ChainMap
+from collections.abc import Mapping
 from os import PathLike
 from functools import partial
 from pathlib import Path

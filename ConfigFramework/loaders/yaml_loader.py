@@ -1,4 +1,5 @@
-from collections import ChainMap, Mapping
+from collections import ChainMap
+from collections.abc import Mapping
 from functools import partial
 from os import PathLike
 from pathlib import Path
