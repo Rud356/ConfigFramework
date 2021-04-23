@@ -8,7 +8,7 @@ from string import ascii_letters
 
 class TempFile(AbstractContextManager):
     def __init__(self):
-        self.base_dir =  Path(__file__).parent
+        self.base_dir = Path(__file__).parent
 
         self.temp_dir: Path = (self.base_dir / "temp")
         self.temp_dir.mkdir(exist_ok=True)
