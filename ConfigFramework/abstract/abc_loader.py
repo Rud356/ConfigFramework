@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections import ChainMap, Mapping
+from collections import ChainMap
+from collections.abc import Mapping
 from functools import lru_cache
 from pathlib import Path
 from time import time

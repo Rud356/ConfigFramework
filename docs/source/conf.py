@@ -12,19 +12,17 @@
 
 import os
 import sys
-import glob
 from pathlib import Path
 
 from sphinx.ext import apidoc
-
-import sphinx_rtd_theme
+import sphinx_rtd_theme  # noqa: theme for build
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 config_framework_path = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(config_framework_path))
 sys.path.insert(1, str(Path(__file__).parent))
 
-import ConfigFramework
+import ConfigFramework  # noqa: getting version of module
 
 # -- Project information -----------------------------------------------------
 
@@ -34,7 +32,6 @@ author = 'Rud356'
 
 # The full version, including alpha/beta/rc tags
 release = ConfigFramework.__version__
-
 
 # -- General configuration ---------------------------------------------------
 

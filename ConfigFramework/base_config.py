@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Set, Type, NoReturn
+from typing import NoReturn, Optional, Set
 
 from ConfigFramework.abstract.abc_loader import AbstractConfigLoader
 from ConfigFramework.abstract.abc_variable import AbstractConfigVar
