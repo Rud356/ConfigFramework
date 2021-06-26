@@ -25,6 +25,12 @@ Submodules
    :show-inheritance:
 
 
+.. automodule:: ConfigFramework.custom_types
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
 .. automodule:: ConfigFramework.dump_caster
    :members:
    :undoc-members:

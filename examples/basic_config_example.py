@@ -1,5 +1,4 @@
-from ConfigFramework import loaders, variables, BaseConfig
-
+from ConfigFramework import BaseConfig, loaders, variables
 
 first_loader = loaders.JsonStringLoader.load('{"Is it simple?": true}', defaults={"useful?": "maybe", "pi": 2.74})
 second_loader = loaders.JsonStringLoader.load('{"Is it simple?": false, "Var": "value"}')

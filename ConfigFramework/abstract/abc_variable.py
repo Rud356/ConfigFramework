@@ -1,6 +1,9 @@
 from __future__ import annotations
+
 from functools import wraps
+from pathlib import Path
 from typing import Any, AnyStr, Callable, Hashable, NoReturn, Optional, TYPE_CHECKING, Type
+
 from ConfigFramework.loaders.composite_loader import CompositeLoader
 
 if TYPE_CHECKING:
@@ -14,7 +17,7 @@ class AbstractConfigVar:
 
     """
     def __init__(
-        self, key: [Hashable, AnyStr], loader: AbstractConfigLoader, *,
+        self, key: [Hashable, AnyStr, Path], loader: AbstractConfigLoader, *,
         typehint: Optional[Type] = Any,
         caster: Optional[Callable] = None, dump_caster: Optional[Callable, DumpCaster] = None,
         validator: Optional[Callable] = None, default: Optional[Any] = None, constant: bool = False
@@ -22,16 +25,23 @@ class AbstractConfigVar:
         """
         Initializes variable for specified first_loader and key.
 
-        :param key: Any hashable or a string. Strings can be written as paths in case you need a variable.
-         that underlies other mappings. Example of how to get such vars: `config_root/database/database_ip`.
+        :param key: Any hashable, string or Path instance.
+            Example of how to get such vars: `config_root/database/database_ip`.
+            Warning: you must not start config paths with / or \\ since it may cause unwanted errors
+            because `pathlib.Path` is used to transform these to keys sequence.
+
         :param loader: A first_loader that will be looked up to get vars config_var or to update values.
         :param typehint: Typehint for __value field, that by default being returned.
         :param caster: Callable that should return variable casted to specific type (in case you need custom types).
         :param dump_caster: Callable that being called when config being dumped. Also can be instance of
-         ConfigFramework.dump_caster.DumpCaster
+         ConfigFramework.dump_caster.DumpCaster.
         :param validator: Callable that validates config_var or defaults in case the original config_var is invalid.
         :param default: Default config_var that will be set, if config_var is invalid.
-        :param constant: Sets if variable config_var can be set in runtime
+        :param constant: Sets if variable config_var can be set in runtime.
+
+        .. versionadded:: 2.1.0
+           pathlib.Path support as variable key.
+
         """
         self.key = key
         self.is_constant = constant

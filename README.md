@@ -26,7 +26,7 @@ Pypi link: https://pypi.org/project/ConfigFramework
 ## Example of usage
 
 Here's basic example:
-```python
+```python3
 from ConfigFramework import loaders, variables, BaseConfig
 
 
@@ -72,6 +72,7 @@ Config formats:
 - Yaml
 - Json (strings or files)
 - Environment variables
+- Pythons dictionaries
 - Composite loading from multiple simple loaders
 
 ## Features

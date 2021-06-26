@@ -28,4 +28,4 @@ class DumpCaster:
         return self.casters_mapping.get(loader_type, default)(config_var.value)
 
     def __repr__(self):
-        return "I ate cheese"
+        return str(self.casters_mapping)

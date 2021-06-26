@@ -83,7 +83,7 @@ class AbstractConfigLoader(ABC, Mapping):
 
         other_loader.dump(include_defaults)
 
-    def get(self, key: Union[Hashable, AnyStr], default=None) -> Any:
+    def get(self, key: Union[Hashable, AnyStr, Path], default=None) -> Any:
         """
         Returns an item under specified key or key as path and if
         it didn't find it - returns default variable.
@@ -99,7 +99,7 @@ class AbstractConfigLoader(ABC, Mapping):
 
     @staticmethod
     @lru_cache(maxsize=None)
-    def key_to_path_cast(key: Union[AnyStr, Hashable]) -> Union[Tuple[AnyStr, ...], Tuple[Hashable, ...]]:
+    def key_to_path_cast(key: Union[AnyStr, Hashable, Path]) -> Union[Tuple[AnyStr, ...], Tuple[Hashable, ...]]:
         """
         Casts a key to tuple of keys, that should be applied one by one to get to where variable lies.
         Path pointing example: config_root/database/database_ip
@@ -109,6 +109,9 @@ class AbstractConfigLoader(ABC, Mapping):
         """
         if isinstance(key, str) and ("/" in key):
             return Path(key).parts
+
+        if isinstance(key, Path):
+            return key.parts
 
         return key,
 

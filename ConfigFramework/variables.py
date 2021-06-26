@@ -45,6 +45,8 @@ class IntVar(AbstractConfigVar):
     Represents an integer config_var in your config.
 
     """
+    value: int
+
     def __init__(
         self, key: [Hashable, AnyStr], loader: AbstractConfigLoader, *,
         dump_caster: Optional[Callable, DumpCaster] = None, validator: Optional[Callable] = None,
@@ -72,6 +74,8 @@ class FloatVar(AbstractConfigVar):
     Represents an float config_var in your config.
 
     """
+    value: float
+
     def __init__(
         self, key: [Hashable, AnyStr], loader: AbstractConfigLoader, *,
         dump_caster: Optional[Callable, DumpCaster] = None, validator: Optional[Callable] = None,
@@ -101,6 +105,8 @@ class BoolVar(AbstractConfigVar):
     Represents boolean variables in your config with customizable set of words that considered as correct.
 
     """
+    value: bool
+
     def __init__(
         self, key: [Hashable, AnyStr], loader: AbstractConfigLoader, *,
         dump_caster: Optional[Callable, DumpCaster] = None, validator: Optional[Callable] = None,

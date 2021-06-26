@@ -16,6 +16,12 @@ Submodules
    :show-inheritance:
 
 
+.. automodule:: ConfigFramework.loaders.dict_loader
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
 .. automodule:: ConfigFramework.loaders.env_loader
    :members:
    :undoc-members:

@@ -9,16 +9,16 @@ Welcome to ConfigFramework's documentation!
 
 ConfigFramework
 ===============
-.. |PyPI version| image:: https://img.shields.io/pypi/v/ConfigFramework
+.. image:: https://img.shields.io/pypi/v/ConfigFramework
     :alt: PyPI version
 
-.. |Python version| image:: https://img.shields.io/pypi/pyversions/ConfigFramework
+.. image:: https://img.shields.io/pypi/pyversions/ConfigFramework
     :alt: Python version
 
-.. |PyPi downloads/m| image:: https://img.shields.io/pypi/dm/ConfigFramework
+.. image:: https://img.shields.io/pypi/dm/ConfigFramework
     :alt: PyPi downloads/m
 
-.. |Issues| image:: https://img.shields.io/github/issues/Rud356/ConfigFramework
+.. image:: https://img.shields.io/github/issues/Rud356/ConfigFramework
     :alt: Issues count
 
 
@@ -75,6 +75,27 @@ Example of usage
     except NotImplementedError:
         print("You can not set value to constants on runtime")
 
+And this is how you can get typehints for your variables.
+.. code-block:: python
+
+    from ConfigFramework import BaseConfig
+    from ConfigFramework.loaders import DictLoader
+    from ConfigFramework.variables import ConfigVar
+    from ConfigFramework.custom_types import VariableType
+
+    loader = DictLoader.load({"a": 1, "b": 2.22})
+
+
+    class Config(BaseConfig):
+        a: VariableType[int] = ConfigVar("a", loader)
+        b: VariableType[float] = ConfigVar("b", loader)
+
+
+    conf = Config()
+    # You will get float functions suggestions from IDE if you use it like that!
+    conf.b.value.as_integer_ratio()
+
+
 See examples with explanation `here <https://github.com/Rud356/ConfigFramework/blob/master/examples/>`_
 
 Supported config formats
@@ -82,6 +103,7 @@ Supported config formats
 - Yaml
 - Json (strings or files)
 - Environment variables
+- Pythons dictionaries
 - Composite loading from multiple simple loaders
 
 Features
