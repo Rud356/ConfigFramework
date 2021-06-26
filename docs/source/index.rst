@@ -76,6 +76,7 @@ Example of usage
         print("You can not set value to constants on runtime")
 
 And this is how you can get typehints for your variables.
+
 .. code-block:: python
 
     from ConfigFramework import BaseConfig
