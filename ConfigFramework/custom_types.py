@@ -1,19 +1,42 @@
+from __future__ import annotations
+
 import typing
+import warnings
+from collections import ChainMap
+from collections.abc import Mapping
 from pathlib import Path
-from typing import AnyStr, Callable, Hashable, Union
+from typing import Any, AnyStr, Callable, Dict, Hashable, Optional, Union
 
-from ConfigFramework import abstract
+if typing.TYPE_CHECKING:
+    from .dump_caster import DumpCaster
+    from .abstract import AbstractConfigLoader, AbstractConfigVar
 
-T = typing.TypeVar('T')
+key_type = Union[Hashable, AnyStr, Path]
+data_type = Union[Dict, ChainMap, Mapping]
+defaults_type = Optional[Dict[key_type, Any]]
+Var = typing.TypeVar('Var')
 
 
-class VariableType(typing.Generic[T]):
-    """Variable typehint that helps you with telling apart what's inside of variable."""
-    key: Union[Hashable, AnyStr, Path]
-    value: T
+class VariableType(typing.Generic[Var]):
+    """
+    Variable typehint that helps you with telling apart what's inside of variable.
+
+    .. deprecated:: 2.2.0
+        VariableType type hint is deprecated and will be deleted in 2.5.0. To use type hints use ConfigVar
+        instead.
+
+    """
+    warnings.warn(
+        "VariableType class will be deleted in version 2.5.0, please "
+        "consider using use of ConfigVar or any other classes as typehint instead of this one",
+        DeprecationWarning
+    )
+
+    key: key_type
+    value: Var
     is_constant: bool
-    loader: abstract.AbstractConfigLoader
+    loader: AbstractConfigLoader
 
-    caster: Callable
-    dump_caster: Callable
-    validate: Callable
+    caster: Optional[Callable[[Any], Var]]
+    dump_caster: Optional[Callable[[AbstractConfigVar], Any], DumpCaster]
+    validate: Optional[Callable[[Var], bool]]

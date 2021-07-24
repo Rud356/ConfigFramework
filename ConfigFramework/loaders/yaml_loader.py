@@ -1,13 +1,12 @@
-from collections import ChainMap
-from collections.abc import Mapping
 from functools import partial
 from os import PathLike
 from pathlib import Path
-from typing import AnyStr, Dict, NoReturn, Union, Optional
+from typing import AnyStr, Dict, Optional, Union
 
 import yaml
 
 from ConfigFramework.abstract.abc_loader import AbstractConfigLoader
+from ConfigFramework.custom_types import data_type, defaults_type
 
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
@@ -20,7 +19,7 @@ class YAMLLoader(AbstractConfigLoader):
     dumper = partial(yaml.dump, Dumper=Dumper)
     loader = partial(yaml.load, Loader=Loader)
 
-    def __init__(self, data: Union[Dict, ChainMap, Mapping], defaults: Dict, config_path: Path):
+    def __init__(self, data: data_type, defaults: defaults_type, config_path: Path):
         super().__init__(data, defaults)
         self.config_path = config_path
 
@@ -34,7 +33,7 @@ class YAMLLoader(AbstractConfigLoader):
         with open(config_path, encoding='utf8') as yaml_f:
             return cls(cls.loader(yaml_f), defaults, config_path)
 
-    def dump(self, include_defaults: bool = False) -> NoReturn:
+    def dump(self, include_defaults: bool = False) -> None:
         to_dump = self.data
 
         if include_defaults:

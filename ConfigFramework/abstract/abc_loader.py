@@ -6,7 +6,13 @@ from collections.abc import Mapping
 from functools import lru_cache
 from pathlib import Path
 from time import time
-from typing import Any, AnyStr, Dict, Hashable, NoReturn, Optional, Tuple, Union
+from typing import (
+    Any, AnyStr, Dict, Hashable,
+    Optional, TYPE_CHECKING, Tuple, Union
+)
+
+if TYPE_CHECKING:
+    from ConfigFramework.custom_types import key_type, defaults_type, data_type
 
 
 class AbstractConfigLoader(ABC, Mapping):
@@ -16,13 +22,15 @@ class AbstractConfigLoader(ABC, Mapping):
     """
 
     def __init__(
-        self, data: Union[Dict, ChainMap, Mapping], defaults: Dict, include_defaults_to_dumps: Optional[bool] = None,
+        self, data: data_type,
+        defaults: defaults_type,
+        include_defaults_to_dumps: Optional[bool] = None,
         *args, **kwargs
     ):
         """
         Creates new config first_loader with your variables.
 
-        :param data: data from first_loader.
+        :param data: data from loader.
         :param defaults: default variables that will be used if not found in first_loader.
         :param include_defaults_to_dumps: represents if default values should be dumped to that first_loader.
         :param args: arguments that can be used for your custom loaders.
@@ -52,7 +60,7 @@ class AbstractConfigLoader(ABC, Mapping):
         pass
 
     @abstractmethod
-    def dump(self, include_defaults: bool = False) -> NoReturn:
+    def dump(self, include_defaults: bool = False) -> None:
         """
         Dumps updated variables to loader.
 
@@ -61,7 +69,7 @@ class AbstractConfigLoader(ABC, Mapping):
         """
         pass
 
-    def dump_to(self, other_loader: AbstractConfigLoader, include_defaults: bool = False) -> NoReturn:
+    def dump_to(self, other_loader: AbstractConfigLoader, include_defaults: bool = False) -> None:
         """
         Dumps variables to other first_loader that been already initialized.
 
@@ -116,8 +124,8 @@ class AbstractConfigLoader(ABC, Mapping):
         return key,
 
     def get_to_variable_root(
-        self, keys: Union[Tuple[AnyStr, ...], Tuple[Hashable, ...]], lookup_at: Optional[Dict] = None
-    ) -> Dict:
+        self, keys: Union[Tuple[AnyStr, ...], key_type], lookup_at: Optional[Dict[key_type, Any]] = None
+    ) -> Dict[Hashable, Any]:
         """
         Returns an dictionary with our variable.
 
@@ -132,7 +140,7 @@ class AbstractConfigLoader(ABC, Mapping):
 
         return root
 
-    def __getitem__(self, key: Union[Hashable, AnyStr]) -> Any:
+    def __getitem__(self, key: key_type) -> Any:
         """
         Returns an item under specified key or key as path and if
         it didn't find it - raises KeyError.
@@ -145,7 +153,7 @@ class AbstractConfigLoader(ABC, Mapping):
 
         return val_root[casted_key[-1]]
 
-    def __setitem__(self, key: Union[Hashable, AnyStr], value: Any) -> NoReturn:
+    def __setitem__(self, key: key_type, value: Any) -> None:
         """
         Sets variable config_var inside of your first_loader.
 

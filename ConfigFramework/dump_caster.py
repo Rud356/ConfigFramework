@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import AnyStr, Callable, Dict, TYPE_CHECKING, Union, Type
+
+from typing import Any, AnyStr, Callable, Dict, TYPE_CHECKING, Type, Union
 
 if TYPE_CHECKING:
     from ConfigFramework.abstract.abc_loader import AbstractConfigLoader
@@ -9,8 +10,13 @@ if TYPE_CHECKING:
 class DumpCaster:
     """
     Class that is meant to help assigning specific dump caster function for different ConfigLoaders.
+
+    Saved for backward compatibility. Recommended to use AbstractConfigVar as typehint.
     """
-    def __init__(self, casters_dict: Dict[Union[Type[AbstractConfigLoader], AnyStr], Callable]):
+    def __init__(self, casters_dict: Dict[
+        Union[Type[AbstractConfigLoader], AnyStr],
+        Callable[[AbstractConfigVar], Any]
+    ]):
         """
         Creates a caster for some variable, that can execute functions depending on what caster type it received.
         If you want to set default caster - set '*' key to casters_mapping
@@ -22,7 +28,7 @@ class DumpCaster:
         """
         self.casters_mapping = casters_dict
 
-    def __call__(self, config_var: AbstractConfigVar):
+    def __call__(self, config_var: AbstractConfigVar) -> Any:
         default: Callable = self.casters_mapping.get('*', lambda v: v)
         loader_type = config_var._loader_type() # noqa: _loader_type should be just internal function
         return self.casters_mapping.get(loader_type, default)(config_var.value)

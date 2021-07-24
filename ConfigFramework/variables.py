@@ -3,7 +3,8 @@ from __future__ import annotations
 from typing import Any, AnyStr, Callable, Hashable, Optional, Tuple, Type
 
 from ConfigFramework.abstract.abc_loader import AbstractConfigLoader
-from ConfigFramework.abstract.abc_variable import AbstractConfigVar
+from ConfigFramework.abstract.abc_variable import AbstractConfigVar, Var
+from ConfigFramework.custom_types import key_type
 from .dump_caster import DumpCaster
 
 
@@ -11,29 +12,45 @@ class ConfigVar(AbstractConfigVar):
     # Yes, its literally the same thing
     """
     Represents any config variable that you can customize to your needs by adding some code.
-
     """
 
     def __init__(
-        self, key: [Hashable, AnyStr], loader: AbstractConfigLoader, *,
+        self, key: key_type,
+        loader: AbstractConfigLoader, *,
         typehint: Optional[Type] = Any,
-        caster: Optional[Callable] = None, dump_caster: Optional[Callable, DumpCaster] = None,
-        validator: Optional[Callable] = None, default: Optional[Any] = None, constant: bool = False
+        caster: Optional[Callable[[Any], Var]] = None,
+        dump_caster: Optional[Callable[[AbstractConfigVar], Any], DumpCaster] = None,
+        validator: Optional[Callable[[Var], bool]] = None,
+        default: Optional[Any] = None,
+        constant: bool = False
     ):
         """
         Initializes variable for specified first_loader and key.
 
-        :param key: Any hashable or a string. Strings can be written as paths in case you need a variable.
-         that underlies other mappings. Example of how to get such vars: `config_root/database/database_ip`.
+        :param key: Any hashable, string or Path instance. Example
+            of how to get such vars: `config_root/database/database_ip`. Warning:
+            you must not start config paths with / or \\ since it may cause unwanted errors
+            because `pathlib.Path` is used to transform these to keys sequence.
         :param loader: A first_loader that will be looked up to get vars config_var or to update values.
         :param typehint: Typehint for __value field, that by default being returned.
         :param caster: Callable that should return variable casted to specific type (in case you need custom types).
         :param dump_caster: Callable that being called when config being dumped. Also can be instance of
-         ConfigFramework.dump_caster.DumpCaster
+         ConfigFramework.dump_caster.DumpCaster.
         :param validator: Callable that validates config_var or defaults in case the original config_var is invalid.
         :param default: Default config_var that will be set, if config_var is invalid.
-        :param constant: Sets if variable config_var can be set in runtime
+        :param constant: Sets if variable config_var can be set in runtime.
+
+        .. versionadded:: 2.1.0
+           pathlib.Path support as variable key.
+
+        .. versionadded:: 2.2.0
+            ConfigVar can be used as a type hint.
+
+        .. deprecated:: 2.2.0
+            typehint parameter is deprecated and will be deleted in 2.5.0. To use type hints use
+            ConfigVar[desired_type] instead.
         """
+
         super().__init__(
             key, loader, typehint=typehint, caster=caster,
             dump_caster=dump_caster, validator=validator, default=default, constant=constant
@@ -48,9 +65,11 @@ class IntVar(AbstractConfigVar):
     value: int
 
     def __init__(
-        self, key: [Hashable, AnyStr], loader: AbstractConfigLoader, *,
-        dump_caster: Optional[Callable, DumpCaster] = None, validator: Optional[Callable] = None,
-        default: Optional[Any] = None, constant: bool = False
+        self, key: key_type, loader: AbstractConfigLoader, *,
+        dump_caster: Optional[Callable[[AbstractConfigVar], Any], DumpCaster] = None,
+        validator: Optional[Callable[[int], bool]] = None,
+        default: Optional[Any] = None,
+        constant: bool = False
     ):
         """
         Initializes int variable for specified first_loader and key.
@@ -67,6 +86,7 @@ class IntVar(AbstractConfigVar):
             key, loader, caster=int, typehint=int, dump_caster=dump_caster,
             validator=validator, default=default, constant=constant
         )
+        self.__annotations__ = ConfigVar[int]
 
 
 class FloatVar(AbstractConfigVar):
@@ -77,9 +97,12 @@ class FloatVar(AbstractConfigVar):
     value: float
 
     def __init__(
-        self, key: [Hashable, AnyStr], loader: AbstractConfigLoader, *,
-        dump_caster: Optional[Callable, DumpCaster] = None, validator: Optional[Callable] = None,
-        default: Optional[Any] = None, constant: bool = False
+        self, key: key_type,
+        loader: AbstractConfigLoader, *,
+        dump_caster: Optional[Callable[[AbstractConfigVar], Any], DumpCaster] = None,
+        validator: Optional[Callable[[float], bool]] = None,
+        default: Optional[Any] = None,
+        constant: bool = False
     ):
         """
         Initializes float variable for specified first_loader and key.
@@ -109,8 +132,11 @@ class BoolVar(AbstractConfigVar):
 
     def __init__(
         self, key: [Hashable, AnyStr], loader: AbstractConfigLoader, *,
-        dump_caster: Optional[Callable, DumpCaster] = None, validator: Optional[Callable] = None,
-        default: Optional[Any] = None, true_str_values: Tuple[AnyStr] = ("true", "t", "y", "1"), constant: bool = False
+        dump_caster: Optional[Callable[[AbstractConfigVar], Any], DumpCaster] = None,
+        validator: Optional[Callable[[Any], bool]] = None,
+        default: Optional[Any] = None,
+        true_str_values: Tuple[AnyStr] = ("true", "t", "y", "1"),
+        constant: bool = False
     ):
         """
         Initializes variable for specified first_loader and key.

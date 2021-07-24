@@ -1,24 +1,21 @@
 import json
-from collections import ChainMap
-from collections.abc import Mapping
-from os import PathLike
 from functools import partial
 from pathlib import Path
-from typing import AnyStr, Dict, NoReturn, Union, Optional
 
 from ConfigFramework.abstract.abc_loader import AbstractConfigLoader
+from ConfigFramework.custom_types import data_type, defaults_type, key_type
 
 
 class JsonLoader(AbstractConfigLoader):
     json_loader = partial(json.load)
     json_dumper = partial(json.dump, ensure_ascii=False, check_circular=True, indent=2)
 
-    def __init__(self, data: Union[Dict, ChainMap, Mapping], defaults: Dict, config_path: Path):
+    def __init__(self, data: data_type, defaults: defaults_type, config_path: Path):
         super().__init__(data, defaults)
         self.config_path = config_path
 
     @classmethod
-    def load(cls, config_path: Union[AnyStr, Path, PathLike], defaults: Optional[Dict] = None, **json_kwargs):
+    def load(cls, config_path: key_type, defaults: defaults_type = None, **json_kwargs):
         config_path = Path(config_path)
 
         if not config_path.is_file():
@@ -29,7 +26,7 @@ class JsonLoader(AbstractConfigLoader):
 
         return cls(data, defaults, config_path=config_path)
 
-    def dump(self, include_defaults: bool = False, **json_kwargs) -> NoReturn:
+    def dump(self, include_defaults: bool = False, **json_kwargs) -> None:
         to_dump = self.data
 
         if include_defaults:

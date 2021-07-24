@@ -1,12 +1,11 @@
-from typing import Dict, NoReturn, Optional
-
 from ConfigFramework.abstract.abc_loader import AbstractConfigLoader
+from ConfigFramework.custom_types import data_type, defaults_type
 
 
 class DictLoader(AbstractConfigLoader):
     """Uses dictionaries with same interface as if it was an Loader."""
     @classmethod
-    def load(cls, data: dict, defaults: Optional[Dict] = None):
+    def load(cls, data: data_type, defaults: defaults_type = None):
         """
         Loads dictionary as some loader with same interface.
 
@@ -16,7 +15,7 @@ class DictLoader(AbstractConfigLoader):
         """
         return cls(data, defaults=defaults)
 
-    def dump(self, include_defaults: bool = False) -> NoReturn:
+    def dump(self, include_defaults: bool = False) -> None:
         """
         No need to dump at all since all values instantly being updated.
         Left only for compatibility purpose.

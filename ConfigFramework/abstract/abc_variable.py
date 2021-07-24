@@ -1,35 +1,45 @@
 from __future__ import annotations
 
+import typing
 from functools import wraps
 from pathlib import Path
-from typing import Any, AnyStr, Callable, Hashable, NoReturn, Optional, TYPE_CHECKING, Type
+from typing import Any, AnyStr, Callable, Hashable, Optional, TYPE_CHECKING, Type, Union
 
 from ConfigFramework.loaders.composite_loader import CompositeLoader
 
 if TYPE_CHECKING:
-    from .abc_loader import AbstractConfigLoader
     from ConfigFramework.dump_caster import DumpCaster
+    from ConfigFramework.custom_types import key_type
+    from .abc_loader import AbstractConfigLoader
+
+Var = typing.TypeVar('Var')
 
 
-class AbstractConfigVar:
+class AbstractConfigVar(typing.Generic[Var]):
+    key: Union[Hashable, AnyStr, Path]
+    value: Var
+    is_constant: bool
+    loader: AbstractConfigLoader
+
     """
     Abstract config variable with descriptors interface which is a base type for any of your variables classes.
-
     """
     def __init__(
-        self, key: [Hashable, AnyStr, Path], loader: AbstractConfigLoader, *,
+        self, key: key_type, loader: AbstractConfigLoader, *,
         typehint: Optional[Type] = Any,
-        caster: Optional[Callable] = None, dump_caster: Optional[Callable, DumpCaster] = None,
-        validator: Optional[Callable] = None, default: Optional[Any] = None, constant: bool = False
+        caster: Optional[Callable[[Any], Var]] = None,
+        dump_caster: Optional[Callable[[AbstractConfigVar], Any], DumpCaster] = None,
+        validator: Optional[Callable[[Var], bool]] = None,
+        default: Optional[Any] = None,
+        constant: bool = False
     ):
         """
         Initializes variable for specified first_loader and key.
 
-        :param key: Any hashable, string or Path instance.
-            Example of how to get such vars: `config_root/database/database_ip`.
-            Warning: you must not start config paths with / or \\ since it may cause unwanted errors
+        :param key: Any hashable, string or Path instance. Example
+            of how to get such vars: `config_root/database/database_ip`. Warning:
+            you must not start config paths with / or \\ since it may cause unwanted errors
             because `pathlib.Path` is used to transform these to keys sequence.
-
         :param loader: A first_loader that will be looked up to get vars config_var or to update values.
         :param typehint: Typehint for __value field, that by default being returned.
         :param caster: Callable that should return variable casted to specific type (in case you need custom types).
@@ -42,6 +52,12 @@ class AbstractConfigVar:
         .. versionadded:: 2.1.0
            pathlib.Path support as variable key.
 
+        .. versionadded:: 2.2.0
+            AbstractConfigVar can be used as a type hint.
+
+        .. deprecated:: 2.2.0
+            typehint parameter is deprecated and will be deleted in 2.5.0. To use type hints use
+            AbstractConfigVar[desired_type] instead.
         """
         self.key = key
         self.is_constant = constant
@@ -81,7 +97,7 @@ class AbstractConfigVar:
 
         self.__post_init = True
 
-    def caster(self, value: Any) -> Any:
+    def caster(self, value: Any) -> Var:
         """
         Callable that should return variable casted to specific type (in case you need custom types).
 
@@ -103,7 +119,7 @@ class AbstractConfigVar:
         """
         return config_var.__value
 
-    def validate(self, value: Any) -> bool:  # noqa
+    def validate(self, value: Var) -> bool:  # noqa
         """
         Callable that validates config_var or defaults in case the original config_var is invalid.
 
@@ -134,7 +150,7 @@ class AbstractConfigVar:
                     return type(loader)
 
     @staticmethod
-    def _validate_to_bool(func):
+    def _validate_to_bool(func) -> Callable[[Var], bool]:
         """
         Wrapper that returns a bool config_var representing if check failed or raised ValueError.
 
@@ -157,7 +173,7 @@ class AbstractConfigVar:
         if not hasattr(loader, 'defaults'):
             return False
 
-        bool_casted_validator: Callable = AbstractConfigVar._validate_to_bool(validator)
+        bool_casted_validator: Callable[[Var], bool] = AbstractConfigVar._validate_to_bool(validator)
         *keys, variable_key = loader.key_to_path_cast(key)
 
         try:
@@ -170,7 +186,7 @@ class AbstractConfigVar:
         return bool_casted_validator(caster(variable))
 
     @property
-    def value(self) -> Any:
+    def value(self) -> Var:
         """
         Gives access to casted value.
 
@@ -179,7 +195,7 @@ class AbstractConfigVar:
         return self.__value
 
     @value.setter
-    def value(self, value: Any) -> NoReturn:
+    def value(self, value: Any) -> None:
         """
         Sets a new value to config variable and updates its value in loader with casting it to needed type.
 
@@ -202,4 +218,4 @@ class AbstractConfigVar:
         return f"{self.key} in {self.loader} = {self.__value}"
 
 
-__all__ = ["AbstractConfigVar"]
+__all__ = ["AbstractConfigVar", "Var"]

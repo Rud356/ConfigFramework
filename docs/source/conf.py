@@ -73,6 +73,7 @@ apidoc_output_dir = './source/'
 apidoc_separate_modules = True
 apidoc_excluded_paths = ['tests', 'setup.py']
 autodoc_default_flags = ['members']
+autoclass_content = 'both'
 autosummary_generate = True
 add_module_names = False
 class_members_toctree = False
@@ -83,7 +84,7 @@ def setup(app):
     config_framework_dir = '../ConfigFramework'
     if not on_rtd:
         apidoc.main([
-            '-f', '-T', '-E', '-M',
+            '-f', '-Var', '-E', '-M',
             '-o', './source/',
             config_framework_dir,
         ])

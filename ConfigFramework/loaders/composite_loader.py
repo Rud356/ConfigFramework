@@ -1,19 +1,19 @@
 from collections import ChainMap
-from typing import Dict, NoReturn, Optional
 
 from ConfigFramework.abstract.abc_loader import AbstractConfigLoader
+from ConfigFramework.custom_types import defaults_type
 
 
 class CompositeLoader(AbstractConfigLoader):
-    def __init__(self, *loaders: AbstractConfigLoader, defaults: Dict):
+    def __init__(self, *loaders: AbstractConfigLoader, defaults: defaults_type):
         super().__init__(ChainMap(*loaders), defaults=defaults)
         self.loaders = loaders
 
-    def dump(self, include_defaults: bool = False) -> NoReturn:
+    def dump(self, include_defaults: bool = False) -> None:
         for loader in self.loaders:
             loader.dump()
 
-    def dump_to(self, other_loader: AbstractConfigLoader, include_defaults: bool = False) -> NoReturn:
+    def dump_to(self, other_loader: AbstractConfigLoader, include_defaults: bool = False) -> None:
         data = dict(ChainMap(*[loader.data for loader in self.loaders]))
         defaults = {}
 
@@ -45,5 +45,5 @@ class CompositeLoader(AbstractConfigLoader):
                 break
 
     @classmethod
-    def load(cls, *loaders: AbstractConfigLoader, defaults: Optional[Dict] = None):
+    def load(cls, *loaders: AbstractConfigLoader, defaults: defaults_type = None):
         return cls(*loaders, defaults=defaults)

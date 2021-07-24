@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import NoReturn, Optional, Set
+from typing import Optional, Set
 
 from ConfigFramework.abstract.abc_loader import AbstractConfigLoader
 from ConfigFramework.abstract.abc_variable import AbstractConfigVar
@@ -49,7 +49,7 @@ class BaseConfig:
                 new_config.__passed_classes = self.__passed_classes
                 self.__dict__[key] = new_config
 
-    def __post_init__(self, *args, **kwargs) -> NoReturn:
+    def __post_init__(self, *args, **kwargs) -> None:
         """
         Post-initialization hook that receives all args and kwargs from initialization.
 
@@ -59,7 +59,7 @@ class BaseConfig:
         """
         pass
 
-    def dump(self, include_defaults: Optional[bool] = None) -> NoReturn:
+    def dump(self, include_defaults: Optional[bool] = None) -> None:
         """
         Writes variables updated values to their.
 

@@ -1,12 +1,13 @@
 from os import environ
-from typing import Dict, NoReturn, Optional
+from typing import NoReturn
 
 from ConfigFramework.abstract.abc_loader import AbstractConfigLoader
+from ConfigFramework.custom_types import defaults_type
 
 
 class EnvLoader(AbstractConfigLoader):
     @classmethod
-    def load(cls, defaults: Optional[Dict] = None):
+    def load(cls, defaults: defaults_type = None):
         return cls(data=environ, defaults=defaults)
 
     def dump(self, include_defaults: bool = False) -> NoReturn:
