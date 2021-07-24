@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, AnyStr, Callable, Optional, Tuple, Type, Union
+from typing import Any, Callable, Optional, Tuple, Type, Union
 
 from ConfigFramework.abstract.abc_loader import AbstractConfigLoader
 from ConfigFramework.abstract.abc_variable import AbstractConfigVar, Var
