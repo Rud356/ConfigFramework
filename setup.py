@@ -16,6 +16,14 @@ setuptools.setup(
     url="https://github.com/Rud356/ConfigFramework",
     packages=setuptools.find_packages(exclude=["tests"]),
     install_requires=["pyyaml>=5.3.1"],
+    extras_require={
+        'mypy': ["mypy", "types-PyYAML"],
+        'docs': [
+            "sphinx~=3.5.2",
+            "sphinx-rtd-theme~=0.5.1",
+            "Pygments~=2.8.1"
+        ]
+    },
     classifiers=[
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",

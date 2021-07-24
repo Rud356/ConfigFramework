@@ -1,11 +1,15 @@
+from __future__ import annotations
+
 import json
 from functools import partial
-from os import PathLike
 from pathlib import Path
-from typing import Union
+from typing import Union, TYPE_CHECKING
 
 from ConfigFramework.abstract.abc_loader import AbstractConfigLoader
 from ConfigFramework.custom_types import data_type, defaults_type
+
+if TYPE_CHECKING:
+    from os import PathLike
 
 
 class JsonLoader(AbstractConfigLoader):
@@ -17,7 +21,7 @@ class JsonLoader(AbstractConfigLoader):
         self.config_path = config_path
 
     @classmethod
-    def load(    # type: ignore
+    def load(  # type: ignore
         cls, config_path: Union[str, Path, PathLike[str]],
         defaults: defaults_type = None, **json_kwargs
     ):

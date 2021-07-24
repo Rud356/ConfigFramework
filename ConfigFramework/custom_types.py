@@ -14,7 +14,7 @@ if typing.TYPE_CHECKING:
 key_type = Union[Hashable, str, Path]
 data_type = Union[
     ChainMap,
-    MutableMapping[Hashable, Any],
+    MutableMapping,
     Dict[Hashable, Any]
 ]
 defaults_type = Optional[Dict[key_type, Any]]

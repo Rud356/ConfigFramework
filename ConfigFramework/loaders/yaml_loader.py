@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 from functools import partial
-from os import PathLike
 from pathlib import Path
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Union, TYPE_CHECKING
 
 import yaml
 
@@ -15,6 +16,10 @@ except ImportError:
     # Those are actually replacements for CDumper/CLoader
     # and so there must be no problem
     from yaml import Loader, Dumper  # type: ignore
+
+
+if TYPE_CHECKING:
+    from os import PathLike
 
 
 class YAMLLoader(AbstractConfigLoader):
