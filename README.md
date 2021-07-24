@@ -12,7 +12,14 @@ and at the same time powerful enough tool to create configs, validate them throu
 ## Installing
 Pypi link: https://pypi.org/project/ConfigFramework
 
-```pip install ConfigFramework```
+Install with command:
+`pip install ConfigFramework`
+
+To install with mypy you must use command:
+`pip install ConfigFramework[mypy]`
+
+To install with mypy and docs building requirements you must use command:
+`pip install ConfigFramework[mypy,docs]`
 
 ## Documentation
 [ConfigFrameworks stable branch documentation](https://configframework.readthedocs.io)
