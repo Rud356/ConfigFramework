@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from typing import Any, AnyStr, Callable, Hashable, Optional, Tuple, Type
+from typing import Any, AnyStr, Callable, Optional, Tuple, Type, Union
 
 from ConfigFramework.abstract.abc_loader import AbstractConfigLoader
 from ConfigFramework.abstract.abc_variable import AbstractConfigVar, Var
 from ConfigFramework.custom_types import key_type
-from .dump_caster import DumpCaster
 
 
 class ConfigVar(AbstractConfigVar):
@@ -17,9 +16,9 @@ class ConfigVar(AbstractConfigVar):
     def __init__(
         self, key: key_type,
         loader: AbstractConfigLoader, *,
-        typehint: Optional[Type] = Any,
+        typehint: Optional[Union[Type, Any]] = Any,
         caster: Optional[Callable[[Any], Var]] = None,
-        dump_caster: Optional[Callable[[AbstractConfigVar], Any], DumpCaster] = None,
+        dump_caster: Optional[Callable[[AbstractConfigVar], Any]] = None,
         validator: Optional[Callable[[Var], bool]] = None,
         default: Optional[Any] = None,
         constant: bool = False
@@ -66,7 +65,7 @@ class IntVar(AbstractConfigVar):
 
     def __init__(
         self, key: key_type, loader: AbstractConfigLoader, *,
-        dump_caster: Optional[Callable[[AbstractConfigVar], Any], DumpCaster] = None,
+        dump_caster: Optional[Callable[[AbstractConfigVar], Any]] = None,
         validator: Optional[Callable[[int], bool]] = None,
         default: Optional[Any] = None,
         constant: bool = False
@@ -86,7 +85,6 @@ class IntVar(AbstractConfigVar):
             key, loader, caster=int, typehint=int, dump_caster=dump_caster,
             validator=validator, default=default, constant=constant
         )
-        self.__annotations__ = ConfigVar[int]
 
 
 class FloatVar(AbstractConfigVar):
@@ -99,7 +97,7 @@ class FloatVar(AbstractConfigVar):
     def __init__(
         self, key: key_type,
         loader: AbstractConfigLoader, *,
-        dump_caster: Optional[Callable[[AbstractConfigVar], Any], DumpCaster] = None,
+        dump_caster: Optional[Callable[[AbstractConfigVar], Any]] = None,
         validator: Optional[Callable[[float], bool]] = None,
         default: Optional[Any] = None,
         constant: bool = False
@@ -131,11 +129,12 @@ class BoolVar(AbstractConfigVar):
     value: bool
 
     def __init__(
-        self, key: [Hashable, AnyStr], loader: AbstractConfigLoader, *,
-        dump_caster: Optional[Callable[[AbstractConfigVar], Any], DumpCaster] = None,
+        self, key: key_type,
+        loader: AbstractConfigLoader, *,
+        dump_caster: Optional[Callable[[AbstractConfigVar], Any]] = None,
         validator: Optional[Callable[[Any], bool]] = None,
         default: Optional[Any] = None,
-        true_str_values: Tuple[AnyStr] = ("true", "t", "y", "1"),
+        true_str_values: Tuple[str, ...] = ("true", "t", "y", "1"),
         constant: bool = False
     ):
         """

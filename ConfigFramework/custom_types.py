@@ -3,16 +3,20 @@ from __future__ import annotations
 import typing
 import warnings
 from collections import ChainMap
-from collections.abc import Mapping
+from collections.abc import MutableMapping
 from pathlib import Path
-from typing import Any, AnyStr, Callable, Dict, Hashable, Optional, Union
+from typing import Any, Callable, Dict, Hashable, Optional, Union
 
 if typing.TYPE_CHECKING:
     from .dump_caster import DumpCaster
     from .abstract import AbstractConfigLoader, AbstractConfigVar
 
-key_type = Union[Hashable, AnyStr, Path]
-data_type = Union[Dict, ChainMap, Mapping]
+key_type = Union[Hashable, str, Path]
+data_type = Union[
+    ChainMap,
+    MutableMapping[Hashable, Any],
+    Dict[Hashable, Any]
+]
 defaults_type = Optional[Dict[key_type, Any]]
 Var = typing.TypeVar('Var')
 
@@ -38,5 +42,7 @@ class VariableType(typing.Generic[Var]):
     loader: AbstractConfigLoader
 
     caster: Optional[Callable[[Any], Var]]
-    dump_caster: Optional[Callable[[AbstractConfigVar], Any], DumpCaster]
+    dump_caster: Optional[
+        Union[Callable[[AbstractConfigVar], Any], DumpCaster]
+    ]
     validate: Optional[Callable[[Var], bool]]

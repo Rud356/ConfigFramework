@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections import ChainMap
-from collections.abc import Mapping
+from collections.abc import MutableMapping
 from functools import lru_cache
 from pathlib import Path
 from time import time
@@ -15,16 +15,21 @@ if TYPE_CHECKING:
     from ConfigFramework.custom_types import key_type, defaults_type, data_type
 
 
-class AbstractConfigLoader(ABC, Mapping):
+class AbstractConfigLoader(ABC, MutableMapping):
     """
     Base class for any of your loaders. Initialization can be made through load function, or, if author wants so,
     through `__init__` function.
     """
+    lookup_data: Union[
+        ChainMap,
+        MutableMapping[Hashable, Any],
+        Dict[Hashable, Any]
+    ]
 
     def __init__(
         self, data: data_type,
         defaults: defaults_type,
-        include_defaults_to_dumps: Optional[bool] = None,
+        include_defaults_to_dumps: bool = False,
         *args, **kwargs
     ):
         """
@@ -39,7 +44,7 @@ class AbstractConfigLoader(ABC, Mapping):
         self.__created_at = str(time())
         self.data = data
         self.include_defaults: bool = include_defaults_to_dumps
-        self.defaults = defaults
+        self.defaults: Dict[key_type, Any] = defaults or {}
 
         if isinstance(defaults, dict):
             self.lookup_data = ChainMap(self.data, self.defaults)
@@ -107,7 +112,9 @@ class AbstractConfigLoader(ABC, Mapping):
 
     @staticmethod
     @lru_cache(maxsize=None)
-    def key_to_path_cast(key: Union[AnyStr, Hashable, Path]) -> Union[Tuple[AnyStr, ...], Tuple[Hashable, ...]]:
+    def key_to_path_cast(
+        key: Union[AnyStr, Hashable, Path]
+    ) -> Tuple[Union[str, Hashable], ...]:
         """
         Casts a key to tuple of keys, that should be applied one by one to get to where variable lies.
         Path pointing example: config_root/database/database_ip
@@ -116,18 +123,26 @@ class AbstractConfigLoader(ABC, Mapping):
         :return: tuple of sub keys.
         """
         if isinstance(key, str) and ("/" in key):
-            return Path(key).parts
+            return tuple(Path(key).parts)
 
         if isinstance(key, Path):
-            return key.parts
+            return tuple(key.parts)
 
         return key,
 
     def get_to_variable_root(
-        self, keys: Union[Tuple[AnyStr, ...], key_type], lookup_at: Optional[Dict[key_type, Any]] = None
-    ) -> Dict[Hashable, Any]:
+        self,
+        keys: Union[Tuple[str, ...], Tuple[Hashable, ...]],
+        lookup_at: Optional[
+            Union[
+                ChainMap[Hashable, Any],
+                MutableMapping[Hashable, Any],
+                Dict[Hashable, Any]
+            ]
+        ] = None
+    ) -> Union[ChainMap[Hashable, Any], MutableMapping[Hashable, Any], Dict[Hashable, Any]]:
         """
-        Returns an dictionary with our variable.
+        Returns a dictionary with our variable.
 
         :param keys: keys tuple we apply to get to root of variable.
         :param lookup_at: the location we're looking at. In case we need to lookup at specific part of our first_loader.
@@ -162,13 +177,14 @@ class AbstractConfigLoader(ABC, Mapping):
         :return: nothing.
         """
 
-        casted_key = self.key_to_path_cast(key)
+        casted_key: Tuple[Union[str, Hashable], ...] = self.key_to_path_cast(key)
+        last_key = casted_key[-1]
         val_root = self.get_to_variable_root(casted_key)
 
-        if casted_key[-1] not in val_root:
+        if last_key not in val_root:
             raise KeyError(f"No key {casted_key[-1]} in {self}")
 
-        val_root[casted_key[-1]] = value
+        val_root[last_key] = value
 
     def __hash__(self):
         return hash(self.__class__.__name__ + self.__created_at)
@@ -178,6 +194,9 @@ class AbstractConfigLoader(ABC, Mapping):
 
     def __str__(self):
         return self.__class__.__name__
+
+    def __delitem__(self, key: key_type):
+        del self.lookup_data[key]
 
     def __len__(self) -> int:
         return len(self.lookup_data)

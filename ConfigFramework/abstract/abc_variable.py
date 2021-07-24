@@ -2,13 +2,11 @@ from __future__ import annotations
 
 import typing
 from functools import wraps
-from pathlib import Path
-from typing import Any, AnyStr, Callable, Hashable, Optional, TYPE_CHECKING, Type, Union
+from typing import Any, Callable, Hashable, Optional, TYPE_CHECKING, Tuple, Type, Union
 
 from ConfigFramework.loaders.composite_loader import CompositeLoader
 
 if TYPE_CHECKING:
-    from ConfigFramework.dump_caster import DumpCaster
     from ConfigFramework.custom_types import key_type
     from .abc_loader import AbstractConfigLoader
 
@@ -16,8 +14,7 @@ Var = typing.TypeVar('Var')
 
 
 class AbstractConfigVar(typing.Generic[Var]):
-    key: Union[Hashable, AnyStr, Path]
-    value: Var
+    key: key_type
     is_constant: bool
     loader: AbstractConfigLoader
 
@@ -26,9 +23,9 @@ class AbstractConfigVar(typing.Generic[Var]):
     """
     def __init__(
         self, key: key_type, loader: AbstractConfigLoader, *,
-        typehint: Optional[Type] = Any,
+        typehint: Optional[Union[Type, Any]] = Any,  # noqa: backwards compatibility
         caster: Optional[Callable[[Any], Var]] = None,
-        dump_caster: Optional[Callable[[AbstractConfigVar], Any], DumpCaster] = None,
+        dump_caster: Optional[Callable[[AbstractConfigVar], Any]] = None,
         validator: Optional[Callable[[Var], bool]] = None,
         default: Optional[Any] = None,
         constant: bool = False
@@ -73,24 +70,24 @@ class AbstractConfigVar(typing.Generic[Var]):
                 setattr(self, redefine_func_name, func)
 
         if default is not None:
-            self.__value: typehint = self.caster(loader.get(key, default))
+            self.__value = self.caster(loader.get(key, default))
             default = self.caster(default)
 
         else:
-            self.__value: typehint = self.caster(loader[key])
+            self.__value = self.caster(loader[key])
 
         # Validation of config_var and defaults
         bool_casted_validator: Callable = self._validate_to_bool(self.validate)
 
         if not bool_casted_validator(self.__value):
             if (default is not None) and bool_casted_validator(default):
-                self.__value: typehint = default
+                self.__value = default
 
             elif self._validate_value_in_defaults(self.validate, self.caster, loader, key):
                 key = loader.key_to_path_cast(key)
                 var_key = loader.key_to_path_cast(key)
 
-                self.value: typehint = loader.get_to_variable_root(key, lookup_at=loader.defaults)[var_key]
+                self.value = loader.get_to_variable_root(key, lookup_at=loader.defaults)[var_key]
 
             else:
                 raise ValueError(f"Invalid config_var for {self} in {self.loader} and default values not found")
@@ -134,12 +131,9 @@ class AbstractConfigVar(typing.Generic[Var]):
 
         :return: loader class.
         """
-        if not isinstance(self.loader, CompositeLoader):
-            return type(self.loader)
-
-        else:
-            self.loader: CompositeLoader
-            for loader in self.loader.loaders:
+        if isinstance(self.loader, CompositeLoader):
+            composite_loader: CompositeLoader = self.loader
+            for loader in composite_loader.loaders:
                 try:
                     loader[self.key]
 
@@ -148,6 +142,11 @@ class AbstractConfigVar(typing.Generic[Var]):
 
                 else:
                     return type(loader)
+
+            raise KeyError(f"No key {self.key} found in any loaders of {self.loader}")
+
+        else:
+            return type(self.loader)
 
     @staticmethod
     def _validate_to_bool(func) -> Callable[[Var], bool]:
@@ -169,7 +168,12 @@ class AbstractConfigVar(typing.Generic[Var]):
         return execute
 
     @staticmethod
-    def _validate_value_in_defaults(validator: Callable, caster: Callable, loader: AbstractConfigLoader, key) -> bool:
+    def _validate_value_in_defaults(
+        validator: Callable,
+        caster: Callable,
+        loader: AbstractConfigLoader,
+        key: key_type
+    ) -> bool:
         if not hasattr(loader, 'defaults'):
             return False
 
@@ -177,7 +181,9 @@ class AbstractConfigVar(typing.Generic[Var]):
         *keys, variable_key = loader.key_to_path_cast(key)
 
         try:
-            variable_root = loader.get_to_variable_root(keys, lookup_at=loader.defaults)
+            variable_root = loader.get_to_variable_root(
+                tuple(keys), lookup_at=loader.defaults
+            )
             variable = variable_root[variable_key]
 
         except KeyError:

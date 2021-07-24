@@ -5,7 +5,7 @@ from ConfigFramework.custom_types import data_type, defaults_type
 class DictLoader(AbstractConfigLoader):
     """Uses dictionaries with same interface as if it was an Loader."""
     @classmethod
-    def load(cls, data: data_type, defaults: defaults_type = None):
+    def load(cls, data: data_type, defaults: defaults_type = None):  # type: ignore
         """
         Loads dictionary as some loader with same interface.
 

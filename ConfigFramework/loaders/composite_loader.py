@@ -45,5 +45,5 @@ class CompositeLoader(AbstractConfigLoader):
                 break
 
     @classmethod
-    def load(cls, *loaders: AbstractConfigLoader, defaults: defaults_type = None):
+    def load(cls, *loaders: AbstractConfigLoader, defaults: defaults_type = None):  # type: ignore
         return cls(*loaders, defaults=defaults)

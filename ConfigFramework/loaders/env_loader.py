@@ -7,8 +7,9 @@ from ConfigFramework.custom_types import defaults_type
 
 class EnvLoader(AbstractConfigLoader):
     @classmethod
-    def load(cls, defaults: defaults_type = None):
-        return cls(data=environ, defaults=defaults)
+    def load(cls, defaults: defaults_type = None):  # type: ignore
+        # Environ is actually a MutableMapping so this error is mypy mistake
+        return cls(data=environ, defaults=defaults)  # type: ignore
 
     def dump(self, include_defaults: bool = False) -> NoReturn:
         """
@@ -18,4 +19,4 @@ class EnvLoader(AbstractConfigLoader):
         :param include_defaults: doesn't affect anything as stated before.
         :return: nothing.
         """
-        pass
+        ...
