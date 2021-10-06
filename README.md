@@ -37,15 +37,27 @@ Here's basic example:
 from ConfigFramework import loaders, variables, BaseConfig
 
 
-first_loader = loaders.JsonStringLoader.load('{"Is it simple?": true}', defaults={"useful?": "maybe", "pi": 2.74})
-second_loader = loaders.JsonStringLoader.load('{"Is it simple?": false, "Var": "value"}')
+first_loader = loaders.JsonStringLoader.load(
+    '{"Is it simple?": true}',
+    defaults={"useful?": "maybe", "pi": 2.74}
+)
+second_loader = loaders.JsonStringLoader.load(
+    '{"Is it simple?": false, "Var": "value"}'
+)
 composite_loader = loaders.CompositeLoader.load(first_loader, second_loader)
 
 
 class Config(BaseConfig):
     is_simple = variables.BoolVar("Is it simple?", first_loader)
-    is_useful = variables.ConfigVar("useful?", first_loader, validator=lambda v: v == "maybe")
-    pi = variables.FloatVar("pi", first_loader, default=3.14, constant=True, validator=lambda v: v == 3.14)
+    is_useful = variables.ConfigVar(
+        "useful?", first_loader,
+        validator=lambda v: v == "maybe"
+    )
+    pi = variables.FloatVar(
+        "pi", first_loader,
+        default=3.14, constant=True,
+        validator=lambda v: v == 3.14
+    )
 
     class NestedConfig(BaseConfig):
         are_composite_loaders_simple = variables.BoolVar("Is it simple?", composite_loader)
@@ -57,7 +69,9 @@ class Config(BaseConfig):
 
     def __post_init__(self, *args, **kwargs):
         is_simple_to_str = 'simple' if self.is_simple.value else 'hard'
-        print(f"ConfigFramework is {is_simple_to_str} and {self.is_useful.value} useful")
+        print(
+            f"ConfigFramework is {is_simple_to_str} and {self.is_useful.value} useful"
+        )
         print(f"Here's pi = {self.pi.value}")
         print("Main config:", kwargs['phrase'])
 
