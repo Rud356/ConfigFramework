@@ -8,7 +8,7 @@ setuptools.setup(
     name="ConfigFramework",
     version=ConfigFramework.__version__,
     author="Rud356",
-    author_email="devastator12a@mail.ru",
+    author_email="rud356github@gmail.com",
     description="A small framework to build your flexible project configurations",
     long_description=text,
     long_description_content_type="text/markdown",
