@@ -1,12 +1,18 @@
 import setuptools
-import ConfigFramework
+import config_framework
 
 with open('README.md') as f:
     text = f.read()
 
+with open("requirements.txt") as requirement_f:
+    requirements = [line.strip() for line in requirement_f.readlines()]
+
+with open("dev-requirements.txt") as dev_requirement_f:
+    dev_requirements = [line.strip() for line in dev_requirement_f.readlines()]
+
 setuptools.setup(
     name="ConfigFramework",
-    version=ConfigFramework.__version__,
+    version=config_framework.__version__,
     author="Rud356",
     author_email="rud356github@gmail.com",
     description="A small framework to build your flexible project configurations",
@@ -15,14 +21,10 @@ setuptools.setup(
     license="GPLv3",
     url="https://github.com/Rud356/ConfigFramework",
     packages=setuptools.find_packages(exclude=["tests"]),
-    install_requires=["pyyaml>=5.4.1"],
+    install_requires=requirements,
     extras_require={
         'mypy': ["mypy", "types-PyYAML"],
-        'docs': [
-            "sphinx~=3.5.2",
-            "sphinx-rtd-theme~=0.5.1",
-            "Pygments~=2.8.1"
-        ]
+        'docs': dev_requirement_f
     },
     classifiers=[
         "Programming Language :: Python :: 3.7",
