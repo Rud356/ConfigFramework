@@ -37,11 +37,11 @@ class Yaml(AbstractLoader):
 
     @classmethod
     def load(
-        cls, path: Union[PathLike, Path],
+        cls, path: Union[PathLike, Path, str],
         defaults: Optional[MutableMapping[str, Any]] = None,
         encoding: str = "utf8",
-        yaml_loader=partial(yaml.dump, Dumper=Dumper),
-        yaml_dumper=partial(yaml.load, Loader=Loader),
+        yaml_loader=partial(yaml.load, Loader=Loader),
+        yaml_dumper=partial(yaml.dump, Dumper=Dumper),
     ):
         with open(path, encoding=encoding) as data_f:
             data = yaml_loader(data_f)
@@ -58,5 +58,5 @@ class Yaml(AbstractLoader):
         if include_defaults:
             to_dump = dict(self.lookup_data)
 
-        with open(self.path, 'w', encoding=self.encoding) as json_f:
-            self.yaml_dumper(to_dump, json_f)
+        with open(self.path, 'w', encoding=self.encoding) as yaml_f:
+            self.yaml_dumper(data=to_dump, stream=yaml_f)

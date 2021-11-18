@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import (
     TypeVar, Generic, Optional,
     Union, Any, TYPE_CHECKING,
-    Type, Callable, overload,Literal
+    Type, Callable, overload
 )
 
 from . import custom_exceptions
@@ -60,7 +60,8 @@ class Variable(Generic[Var]):
         ...
 
     def __get__(
-        self, instance: Optional[AbstractLoader], cls: Type[AbstractLoader]
+        self, instance: Optional[AbstractLoader],
+        cls: Union[Type[AbstractLoader], Any]
     ) -> Union[Var, Variable[Var]]:
         """
         Gives you a value or Variable with your value depending on condition.

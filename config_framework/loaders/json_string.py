@@ -25,7 +25,7 @@ class JsonString(AbstractLoader):
     def load(
         cls,
         data_string: str,
-        encoding: str,
+        encoding: str = "utf8",
         defaults: Optional[MutableMapping[str, Any]] = None,
         json_loader=json.loads,
         json_dumper=partial(json.dumps, ensure_ascii=False, indent=4),

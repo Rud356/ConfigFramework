@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, Union, Any, Type, Optional
+from typing import Dict, Union, Any, Type
 
 from config_framework.loaders.composite import Composite
 from config_framework.types import Variable

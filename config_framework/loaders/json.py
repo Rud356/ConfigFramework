@@ -29,7 +29,7 @@ class Json(AbstractLoader):
 
     @classmethod
     def load(
-        cls, path: Union[PathLike, Path],
+        cls, path: Union[PathLike, Path, str],
         defaults: Optional[MutableMapping[str, Any]] = None,
         encoding: str = "utf8",
         json_loader=json.load,
