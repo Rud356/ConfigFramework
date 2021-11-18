@@ -150,6 +150,9 @@ class Variable(Generic[Var]):
 
     def _validate_default_value(self) -> None:
         try:
+            if self.default is None:
+                return None
+
             self.validate_value(self.default)
 
         except custom_exceptions.ValueValidationError as err:

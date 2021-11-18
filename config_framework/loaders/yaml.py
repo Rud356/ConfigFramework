@@ -32,12 +32,12 @@ class Yaml(AbstractLoader):
         super().__init__(data, defaults)
         self.path = path
         self.encoding = encoding
-        self.yaml_loader = yaml_loader
-        self.yaml_dumper = yaml_dumper
+        setattr(self, "yaml_loader", yaml_loader)
+        setattr(self, "yaml_dumper", yaml_dumper)
 
     @classmethod
     def load(
-        cls, path: Union[PathLike, Path, str],
+        cls, path: Union[PathLike, Path],
         defaults: Optional[MutableMapping[str, Any]] = None,
         encoding: str = "utf8",
         yaml_loader=partial(yaml.load, Loader=Loader),
