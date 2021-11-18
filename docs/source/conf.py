@@ -22,7 +22,7 @@ config_framework_path = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(config_framework_path))
 sys.path.insert(1, str(Path(__file__).parent))
 
-import ConfigFramework  # noqa: getting version of module
+import config_framework  # noqa: getting version of module
 
 # -- Project information -----------------------------------------------------
 
@@ -31,7 +31,7 @@ copyright = '2021, Rud356'
 author = 'Rud356'
 
 # The full version, including alpha/beta/rc tags
-release = ConfigFramework.__version__
+release = config_framework.__version__
 
 # -- General configuration ---------------------------------------------------
 
@@ -81,7 +81,7 @@ html_show_sourcelink = False
 
 
 def setup(app):
-    config_framework_dir = '../ConfigFramework'
+    config_framework_dir = '../config_framework'
     if not on_rtd:
         apidoc.main([
             '-f', '-Var', '-E', '-M',
