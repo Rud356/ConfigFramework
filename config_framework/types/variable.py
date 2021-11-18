@@ -13,6 +13,9 @@ if TYPE_CHECKING:
     from .abstract.loader import AbstractLoader
 
 Var = TypeVar("Var")
+CustomSerializer = Callable[["Variable", Var], Any]
+CustomDeserializer: Callable[["Variable", Any], Var]
+CustomValidator: Callable[["Variable", Var], bool]
 
 
 class Variable(Generic[Var]):
@@ -23,12 +26,22 @@ class Variable(Generic[Var]):
         key: Union[VariableKey, str],
         default: Optional[Var] = None
     ):
+        self.default: Optional[Var] = default
         self.source: AbstractLoader = source
 
         if isinstance(key, str):
             key = VariableKey(key)
+
         self.key: VariableKey = key
         self.default = default
+
+        if not default:
+            self._value = self.deserialize(self.source[key])
+
+        else:
+            self._value = self.deserialize(self.source.get(key, default))
+
+        self._value = self.deserialize(self._value)
 
     def __get__(
         self, instance: Optional[AbstractLoader], cls: Type[AbstractLoader]
@@ -56,24 +69,24 @@ class Variable(Generic[Var]):
             from which loader value is from. This contains also a traceback
             to your config_framework.types.custom_exceptions.InvalidValueError.
         """
-        self.validator(value)
+        self.validate_value(value)
         self._value = value
-        self.source[self.key] = self.serialize(self.source)
 
-    def serialize(self: Variable, cast_for_loader: AbstractLoader) -> Any:  # noqa:
+        self.source[self.key] = self.serialize()
+
+    def serialize(
+        self: Variable
+    ) -> Any:  # noqa:
         # Might be used by other functions.
         """
-        Casts value to specific loaders type so it can be saved.
+        Casts variables value to specific loaders type so it can be saved.
 
-        :param cast_for_loader: loader for which we are serializing variable.
         :returns: anything.
         """
-        return self._value
+        return self.custom_serializer(self, self._value)
 
-    @classmethod
     def deserialize(
-        cls: Type[Variable],
-        cast_from_loader: AbstractLoader,  # noqa: Used by custom ones
+        self,
         from_value: Any
     ) -> Var:
         """
@@ -81,8 +94,6 @@ class Variable(Generic[Var]):
         out of the box and returns variable with needed type that will also
         be validated after being casted.
 
-        :param cast_from_loader: loader from which we are
-            deserializing variable from.
         :param from_value: raw value from loader.
         :returns: validated and caster to python type value.
         :raises config_framework.types.custom_exceptions.ValueValidationError:
@@ -90,25 +101,11 @@ class Variable(Generic[Var]):
             from which loader value is from. This contains also a traceback
             to your config_framework.types.custom_exceptions.InvalidValueError.
         """
-        from_value: Var
-        cls.validate_value(from_value)
-        return from_value
+        casted_value: Var = self.custom_deserializer(self, from_value)
+        self.validate_value(casted_value)
+        return casted_value
 
-    @classmethod
-    def validator(cls: Type[Variable], value: Var) -> bool:  # noqa: Will be used by others.
-        """
-        Checks if certain value is correct via users code.
-
-        :param value: value of correct python type (after being casted from
-            raw loader value) that will be validated.
-        :returns: bool value representing if its correct or not.
-        :raises config_framework.types.custom_exceptions.InvalidValueError: if
-            you want to write more detailed reason why value is not valid you
-            raise this exception.
-        """
-        return True
-
-    def validate_value(self) -> bool:
+    def validate_value(self, value: Var) -> bool:
         """
         Checks if certain value is correct via users code.
 
@@ -122,25 +119,114 @@ class Variable(Generic[Var]):
             to your config_framework.types.custom_exceptions.InvalidValueError.
         """
         try:
-            return self.validator(self._value)
+            return self.custom_validator(self, value)
 
         except custom_exceptions.ValueValidationError as user_error:
             raise custom_exceptions.InvalidValueError(
                 f"{self.key} got invalid value from source {self.source}"
             ) from user_error
 
-    def validator_registration(
-        self, f: Callable[[Type[Variable], Var], bool]
-    ):
-        setattr(self, "validator", f)
+    @staticmethod
+    def custom_serializer(variable: Variable, value: Var) -> Any:
+        """
+        Casts variables value to specific loaders type so it can be saved. This
+        method can be set to instance of Variable using decorator
+        <variable_instance>.register_serializer.
 
-    def serializer_registration(
-        self, f: Callable[[Variable, AbstractLoader], bool]
-    ):
-        setattr(self, "serializer", f)
+        :param variable: variable instance.
+        :param value: the value that will actually be translated into loaders
+            savable type.
+        :returns: anything.
+        """
+        return value
 
-    def deserializer_registration(
-        self, f: Callable[[Variable, AbstractLoader], bool]
-    ):
-        setattr(self, "deserializer", f)
+    @staticmethod
+    def custom_deserializer(variable: Variable, from_value: Any) -> Var:
+        """
+        Method for defining how your custom variables must be casted from
+        loaders type to pythons one (if they don't translate 1:1). Can be
+        set using decorator <variable_instance>.register_deserializer.
 
+        :param variable: instance of Variable that is used to get
+            information about where this value from and etc.
+        :param from_value: raw value from loader.
+        :returns: validated and caster to python type value.
+        :raises config_framework.types.custom_exceptions.ValueValidationError:
+            adds explanation on where is invalid value in your config and
+            from which loader value is from. This contains also a traceback
+            to your config_framework.types.custom_exceptions.InvalidValueError.
+        """
+        return from_value
+
+    @staticmethod
+    def custom_validator(variable: Variable, value: Var) -> bool:
+        """
+        Method for defining how your variable must be validated. Can be set
+        using decorator <variable_instance>.register_validator.
+
+        :param variable: instance of Variable that is used to get
+            information about where this value from and etc.
+        :param value: value of correct python type (after being casted from
+            raw loader value) that will be validated.
+        :returns: bool value representing if its correct or not.
+
+        :raises config_framework.types.custom_exceptions.ValueValidationError:
+            adds explanation on where is invalid value in your config and
+            from which loader value is from. This contains also a traceback
+            to your config_framework.types.custom_exceptions.InvalidValueError.
+        """
+        return True
+
+    def register_validator(
+        self, f: CustomValidator
+    ) -> CustomValidator:
+        """
+        Registers passed function as custom_validator to be used later
+        and instantly validates current value.
+        :param f: some method that signature matches to CustomValidator.
+        :return: function itself.
+        """
+        setattr(self, "custom_validator", f)
+        # Validating already existing value with new validator
+        self.validate_value(self._value)
+        return f
+
+    def register_serializer(
+        self, f: CustomSerializer
+    ) -> CustomSerializer:
+        """
+        Registers passed function as custom_serializer to be used later
+        and instantly uses it to trigger possible errors.
+        :param f: some method that signature matches to CustomSerializer.
+        :return: function itself.
+        """
+        setattr(self, "custom_serializer", f)
+        # Testing if serializer works fine
+        self.serialize()
+        return f
+
+    def register_deserializer(
+        self, f: CustomDeserializer
+    ) -> CustomDeserializer:
+        """
+        Registers passed function as custom_deserializer to be used later
+        and instantly uses it to trigger possible errors on value from.
+        :param f: some method that signature matches to CustomDeserializer.
+        :return: function itself.
+        """
+        setattr(self, "custom_deserializer", f)
+        # Testing if deserializer works fine after being set
+        # and applying it to value from source.
+
+        if not self.default:
+            self._value = self.deserialize(
+                self.source[self.key]
+            )
+
+        else:
+            self._value = self.deserialize(
+                self.source.get(self.key, self.default)
+            )
+
+        self.validate_value(self._value)
+        return f

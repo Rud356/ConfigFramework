@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import Dict, Union, Any, Callable
+from typing import Dict, Union, Any, Type
 
 from config_framework.loaders.composite import Composite
 from config_framework.types import Variable
 from config_framework.types.abstract import AbstractLoader
-from config_framework.types.variable import Var
+from config_framework.types.variable import Var, CustomSerializer
 
 
 class LoaderSpecificSerializer:
@@ -14,36 +14,41 @@ class LoaderSpecificSerializer:
     depending on where form variable were loaded.
     """
     def __init__(self, serializers: Dict[
-        Union[AbstractLoader, str],
-        Callable[[Var, AbstractLoader], Any]
+        Union[str, Type[AbstractLoader]],
+        CustomSerializer
     ]):
         """
         :param serializers: dictionary of loaders (or * as any not fitting)
-            mapped to their serializers.
+            mapped to their deserializers.
         :return: nothing.
         """
         self.serializers: Dict[
-            Union[AbstractLoader, str],
-            Callable[[Var, AbstractLoader], Any]
+            Union[str, Type[AbstractLoader]],
+            CustomSerializer
         ] = serializers
 
     def __call__(
         self,
         variable: Variable,
-        cast_for_loader: AbstractLoader
+        value: Var,
     ) -> Any:
         """
         Casts value to specific loaders type so it can be saved.
 
-        :param cast_for_loader: loader for which we are serializing variable.
+        :param value: python value that needs
+            to be transformed to loaders type.
         :returns: anything.
         """
+        cast_for_loader = variable.source
         if isinstance(cast_for_loader, Composite):
             cast_for_loader = self.fetch_original_source(
-                variable, cast_for_loader
+                variable,  # noqa: we need this value from internals
+                cast_for_loader
             )
 
-        serializer = self.serializers.get(cast_for_loader, None)
+        serializer = self.serializers.get(
+            type(cast_for_loader), None
+        )
 
         if serializer is None:
             try:
@@ -55,7 +60,7 @@ class LoaderSpecificSerializer:
                     " and not found any default one."
                 )
 
-        return serializer(variable, cast_for_loader)
+        return serializer(variable, value)
 
     @staticmethod
     def fetch_original_source(

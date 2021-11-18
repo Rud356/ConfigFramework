@@ -6,7 +6,7 @@ from config_framework.types.variable_key import VariableKey
 
 
 class Composite(AbstractLoader):
-    loaders: Tuple[AbstractLoader]
+    loaders: Tuple[AbstractLoader, ...]
 
     def __init__(
         self, data: MutableMapping[str, Any],
@@ -14,7 +14,7 @@ class Composite(AbstractLoader):
         loaders: Tuple[AbstractLoader, ...]
     ):
         super().__init__(data, defaults)
-        self.loaders = tuple(loaders)
+        self.loaders = loaders
 
     @classmethod
     def load(

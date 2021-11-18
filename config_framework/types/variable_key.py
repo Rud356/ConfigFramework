@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable, Union, Optional
+from typing import Iterable, Union, Optional, Iterator
 
 
 class VariableKey(Iterable):
@@ -55,12 +55,12 @@ class VariableKey(Iterable):
 
         return self.next_piece
 
-    def __iter__(self) -> str:
+    def __iter__(self) -> Iterator[str]:
         """
         Gives iterable that will yield parts of a full key that will
         give be used to go inside of nested configs.
 
-        :returns: string.
+        :return: string.
         """
         if self.next_piece is None:
             return self.root_key
