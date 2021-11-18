@@ -57,7 +57,7 @@ class BaseConfig:
         """
         is_frozen = getattr(self, "frozen", False)
 
-        if key is 'frozen':
+        if key == 'frozen':
             super().__setattr__(key, value)
 
         elif not is_frozen:
