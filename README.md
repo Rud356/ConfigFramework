@@ -1,4 +1,4 @@
-# ConfigFramework
+# ConfigFramework 3.0
 ![PyPI version](https://img.shields.io/pypi/v/ConfigFramework)
 ![Python version](https://img.shields.io/pypi/pyversions/ConfigFramework)
 ![PyPi downloads/m](https://img.shields.io/pypi/dm/ConfigFramework)
@@ -18,8 +18,8 @@ Install with command:
 To install with mypy you must use command:
 `pip install ConfigFramework[mypy]`
 
-To install with mypy and docs building requirements you must use command:
-`pip install ConfigFramework[mypy,docs]`
+To install with mypy and dev dependencies building requirements you must use command:
+`pip install ConfigFramework[mypy,dev]`
 
 ## Documentation
 [ConfigFrameworks stable branch documentation](https://configframework.readthedocs.io)
@@ -34,81 +34,54 @@ To install with mypy and docs building requirements you must use command:
 
 Here's basic example:
 ```python3
-from ConfigFramework import loaders, variables, BaseConfig
+from config_framework import BaseConfig, VariableKey, Variable
+from config_framework.loaders import Dict
 
-
-first_loader = loaders.JsonStringLoader.load(
-    '{"Is it simple?": true}',
-    defaults={"useful?": "maybe", "pi": 2.74}
-)
-second_loader = loaders.JsonStringLoader.load(
-    '{"Is it simple?": false, "Var": "value"}'
-)
-composite_loader = loaders.CompositeLoader.load(first_loader, second_loader)
-
-
-class Config(BaseConfig):
-    is_simple = variables.BoolVar("Is it simple?", first_loader)
-    is_useful = variables.ConfigVar(
-        "useful?", first_loader,
-        validator=lambda v: v == "maybe"
+loader = Dict.load(
+    data=dict(
+        user_id=1,
+        nested_val=dict(pi=3.14)
     )
-    pi = variables.FloatVar(
-        "pi", first_loader,
-        default=3.14, constant=True,
-        validator=lambda v: v == 3.14
-    )
-
-    class NestedConfig(BaseConfig):
-        are_composite_loaders_simple = variables.BoolVar("Is it simple?", composite_loader)
-
-        def __post_init__(self, *args, **kwargs):
-            yes_or_no = 'Yes' if self.are_composite_loaders_simple.value else 'No'
-            print(f"Is it simple to use composite loaders? {yes_or_no}")
-            print("Nested config:", kwargs['phrase'])
-
-    def __post_init__(self, *args, **kwargs):
-        is_simple_to_str = 'simple' if self.is_simple.value else 'hard'
-        print(
-            f"ConfigFramework is {is_simple_to_str} and {self.is_useful.value} useful"
-        )
-        print(f"Here's pi = {self.pi.value}")
-        print("Main config:", kwargs['phrase'])
+)
 
 
-config = Config(phrase="Here's a way to pass variables")
+class ConfigSample(BaseConfig):
+    user_id: Variable[int] = Variable(loader, VariableKey("user_id"))
+    pi_value = Variable(loader, VariableKey("nested_val") / "pi")
+    # Defaults only applied when key isn't found.
+    # Also default values will be validated after initializing
+    # and after you register new validator.
+    some_value = Variable(loader, "not_found_value", default="Hello world")
 
-try:
-    print("pi is constant:", config.pi.is_constant)
-    config.pi.value = 2.22
+    @staticmethod
+    @user_id.register_validator
+    def validate_user_id(var, value):
+        # Functions can return bool values or raise
+        # config_framework.types.custom_exceptions.InvalidValueError
+        # for more detailed description.
+        return value == 1
 
-except NotImplementedError:
-    print("You can not set value to constants on runtime")
+    def __post_init__(self) -> None:
+        print("Post init here!")
+        print("Values aren't locked yet")
+
+        self.new_value = 122
+
+
+config = ConfigSample()
+print("User id:", config.user_id)
+print("Pi value:", config.pi_value)
+print("Some value:", config.some_value)
+print("Post inited value:", config.new_value)
+
+# Configs by default aren't modifiable since frozen=True
+# If you need changing variables for modifying config - you must
+# create an instance of like this: ConfigSample(frozen=False)
+# But right now it will raise NotImplementedError
+config.some_value = "random"
 
 ```
 See examples with explanation [here](https://github.com/Rud356/ConfigFramework/blob/master/examples/)
-
-```python3
-from ConfigFramework import BaseConfig
-from ConfigFramework.loaders import DictLoader
-from ConfigFramework.variables import ConfigVar, IntVar
-from ConfigFramework.custom_types import VariableType
-
-loader = DictLoader.load({"a": 1, "b": 2.22})
-
-
-class Config(BaseConfig):
-    # Following method of type hinting is deprecated and will be deleted in 2.5.0
-    a: VariableType[int] = IntVar("a", loader)
-    # Since 2.2.0 it's recommended to use ConfigVar to type hint things
-    b: ConfigVar[float] = ConfigVar("b", loader)
-
-
-conf = Config()
-# You will get float functions suggestions from IDE if you use it like that!
-conf.b.value.as_integer_ratio()
-
-```
 
 ## Supported formats
 Config formats:
@@ -126,7 +99,29 @@ Config formats:
 - Config values validations
 - Casting variables values to specific types using functions
 - Casting to acceptable variable type before dumping variable to loader
+- Variables serialization/deserialization depending on from which loader it was fetched
 - Default values for per loader or per variable
 - Translating one config loaders data to other (with or without including default values for each one)
 - Composite loaders that allow you to define where to look up values using only one loader, that handles
   combining others
+- Simpler access to variables values (new in 3.0)
+
+## About 3.0
+This version of config framework breaks many things and has other structure, 
+so you will have to manually migrate to this one. I think it was necessary
+to improve many things, and I hope it will make your life easier.
+
+### What is different?
+- Now module will be called config_framework when you import it into project
+- Structure of whole project is different comparing to 2.0
+- Usage of VariableKey to create key that will tell how to access nested values
+without worrying about what symbols to use, but requiring to explicitly write
+VariableKey whenever you want to go from this root key
+- Improved usability 
+- By default, config will not allow you
+assigning any values after `__post_init__` was called
+
+### Known issues
+- Typehint for `Variable[any_type]` doesn't work properly and give
+only hints for Variable methods, while must give hints for any_type, when
+called from instance of any subclass of BaseConfig

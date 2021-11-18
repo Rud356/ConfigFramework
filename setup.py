@@ -24,7 +24,7 @@ setuptools.setup(
     install_requires=requirements,
     extras_require={
         'mypy': ["mypy", "types-PyYAML"],
-        'docs': dev_requirement_f
+        'dev': dev_requirement_f
     },
     classifiers=[
         "Programming Language :: Python :: 3.7",
