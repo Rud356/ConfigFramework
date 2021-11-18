@@ -2,14 +2,12 @@ from __future__ import annotations
 
 import abc
 from collections import ChainMap
-from dataclasses import dataclass, field
 from time import time
 from typing import MutableMapping, Any, Union, Optional
 
 from ..variable_key import VariableKey
 
 
-@dataclass
 class AbstractLoader(MutableMapping, abc.ABC):
     """
     Class that is used as configuration data source.

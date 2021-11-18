@@ -25,6 +25,7 @@ class JsonString(AbstractLoader):
     def load(
         cls,
         data_string: str,
+        encoding: str,
         defaults: Optional[MutableMapping[str, Any]] = None,
         json_loader=json.loads,
         json_dumper=partial(json.dumps, ensure_ascii=False, indent=4),
@@ -32,7 +33,7 @@ class JsonString(AbstractLoader):
         data = json_loader(data_string)
 
         return cls(
-            data=data, defaults=defaults or {},
+            data=data, defaults=defaults or {}, encoding=encoding,
             json_loader=json_loader, json_dumper=json_dumper
         )
 

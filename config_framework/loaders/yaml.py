@@ -47,7 +47,7 @@ class Yaml(AbstractLoader):
             data = yaml_loader(data_f)
 
         return cls(
-            data=data, defaults=defaults,
+            data=data, defaults=defaults or {},
             path=path, encoding=encoding,
             yaml_loader=yaml_loader,
             yaml_dumper=yaml_dumper

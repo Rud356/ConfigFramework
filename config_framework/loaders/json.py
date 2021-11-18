@@ -39,7 +39,8 @@ class Json(AbstractLoader):
             data = json_loader(data_f)
 
         return cls(
-            data=data, defaults=defaults or {}, path=path,
+            data=data, defaults=defaults or {},
+            path=path, encoding=encoding,
             json_loader=json_loader, json_dumper=json_dumper
         )
 

@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import Dict, Union, Any, Callable, Type
+from typing import Dict, Union, Any, Type, Optional
 
 from config_framework.loaders.composite import Composite
 from config_framework.types import Variable
 from config_framework.types.abstract import AbstractLoader
-from config_framework.types.variable import Var
+from config_framework.types.variable import Var, CustomDeserializer
 
 
 class LoaderSpecificDeserializer:
@@ -14,8 +14,8 @@ class LoaderSpecificDeserializer:
     depending on where variable is loaded from.
     """
     def __init__(self, deserializers: Dict[
-        Union[AbstractLoader, str],
-        Callable[[Type[Variable], Var, AbstractLoader], Any]
+        Union[str, Type[AbstractLoader]],
+        CustomDeserializer
     ]):
         """
         :param deserializers: dictionary of loaders (or * as any not fitting)
@@ -23,32 +23,39 @@ class LoaderSpecificDeserializer:
         :return: nothing.
         """
         self.deserializers: Dict[
-            Union[AbstractLoader, str],
-            Callable[[Type[Variable], Var, AbstractLoader], Any]
+            Union[str, Type[AbstractLoader]],
+            CustomDeserializer
         ] = deserializers
 
     def __call__(
         self,
-        cls: Type[Variable],
         variable: Variable,
-        cast_from_loader: AbstractLoader
-    ) -> Any:
+        from_value: Any,
+    ) -> Var:
         """
         Casts value to specific loaders type so it can be saved.
 
-        :param cast_from_loader: loader for which we are serializing variable.
-        :returns: anything.
+        :param from_value: raw value from loader.
+        :returns: validated and caster to python type value.
+        :raises config_framework.types.custom_exceptions.ValueValidationError:
+            adds explanation on where is invalid value in your config and
+            from which loader value is from. This contains also a traceback
+            to your config_framework.types.custom_exceptions.InvalidValueError.
         """
+        cast_from_loader = variable.source
+
         if isinstance(cast_from_loader, Composite):
             cast_from_loader = self.fetch_original_source(
                 variable, cast_from_loader
             )
 
-        deserializer = self.deserializers.get(cast_from_loader, None)
+        deserializer: Optional[CustomDeserializer] = self.deserializers.get(
+            type(cast_from_loader), None
+        )
 
         if deserializer is None:
             try:
-                deserializer = self.deserializers['*']
+                deserializer: CustomDeserializer = self.deserializers['*']
 
             except KeyError:
                 raise KeyError(
@@ -56,7 +63,13 @@ class LoaderSpecificDeserializer:
                     " and not found any default one."
                 )
 
-        return deserializer(cls, variable, cast_from_loader)
+        deserialized_variable: Var = deserializer(
+            variable,
+            variable._value  # noqa: we need to get this value from variable
+            # to deserialize
+        )
+        variable.validate_value(deserialized_variable)
+        return deserializer
 
     @staticmethod
     def fetch_original_source(

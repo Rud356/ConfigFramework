@@ -43,7 +43,6 @@ class BaseConfig:
 
         for key, value in cls.__dict__.items():
             if isinstance(value, Variable):
-                value: Variable
                 cls._variables.add(value)
                 cls._loaders.add(value.source)
 
