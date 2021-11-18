@@ -1,5 +1,5 @@
-from config_framework.loaders import Dict
 from config_framework import BaseConfig, VariableKey, Variable
+from config_framework.loaders import Dict
 
 loader = Dict.load(
     data=dict(
@@ -41,4 +41,5 @@ print("Post inited value:", config.new_value)
 # Configs by default aren't modifiable since frozen=True
 # If you need changing variables for modifying config - you must
 # create an instance of like this: ConfigSample(frozen=False)
+# But right now it will raise NotImplementedError
 config.some_value = "random"

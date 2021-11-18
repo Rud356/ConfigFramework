@@ -47,9 +47,6 @@ class BaseConfig:
                 cls._variables.add(value)
                 cls._loaders.add(value.source)
 
-    def __freeze(self):
-        self.__dict__['frozen'] = True
-
     def __setattr__(self, key, value):
         """
         Assigns value to class under specific key.
@@ -58,16 +55,18 @@ class BaseConfig:
         :param value: attribute value.
         :return: nothing.
         """
-        if key == "frozen" and value:
+        is_frozen = getattr(self, "frozen", False)
+
+        if key is 'frozen':
             super().__setattr__(key, value)
 
-        elif getattr(self, "frozen", False):
+        elif not is_frozen:
+            super().__setattr__(key, value)
+
+        else:
             raise NotImplementedError(
                 "This instance can't have anything assigned"
             )
-
-        else:
-            super().__setattr__(key, value)
 
     def save(self, include_defaults: bool = True) -> None:
         """

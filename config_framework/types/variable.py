@@ -78,7 +78,7 @@ class Variable(Generic[Var]):
         else:
             return self
 
-    def __set__(self, value: Var) -> None:
+    def __set__(self, obj: Optional[object], value: Var) -> None:
         """
         Sets a new value to your variable.
 
