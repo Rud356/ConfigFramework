@@ -18,7 +18,7 @@ class Composite(AbstractLoader):
 
     @classmethod
     def load(
-        cls, *loaders,
+        cls, *loaders: AbstractLoader,
         defaults: Optional[MutableMapping[str, Any]] = None
     ):
         return cls(
