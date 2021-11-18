@@ -11,7 +11,7 @@ with open("dev-requirements.txt") as dev_requirement_f:
     dev_requirements = [line.strip() for line in dev_requirement_f.readlines()]
 
 setuptools.setup(
-    name="config_framework",
+    name="ConfigFramework",
     version=config_framework.__version__,
     author="Rud356",
     author_email="rud356github@gmail.com",
