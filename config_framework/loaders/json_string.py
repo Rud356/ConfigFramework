@@ -18,8 +18,8 @@ class JsonString(AbstractLoader):
     ):
         super().__init__(data, defaults)
         self.encoding = encoding
-        self.json_loader = json_loader
-        self.json_dumper = json_dumper
+        setattr(self, "json_loader", json_loader)
+        setattr(self, "json_dumper", json_dumper)
 
     @classmethod
     def load(
