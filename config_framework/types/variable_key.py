@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable, Union, Optional, Iterator
+from typing import Iterable, Union, Optional, Iterator, List
 
 
 class VariableKey(Iterable):
@@ -9,9 +9,9 @@ class VariableKey(Iterable):
     to look for inside of some complicated nested structures.
     """
     root_key: str
-    next_piece: Optional[VariableKey]
+    next_pieces: List[VariableKey]
 
-    __slots__ = ("root_key", "next_piece")
+    __slots__ = ("root_key", "next_pieces")
 
     def __init__(self, root_key: str):
         """
@@ -28,7 +28,7 @@ class VariableKey(Iterable):
             )
 
         self.root_key = root_key
-        self.next_piece = None
+        self.next_pieces = []
 
     def __truediv__(self, other_key: Union[str, VariableKey]) -> VariableKey:
         """
@@ -42,10 +42,10 @@ class VariableKey(Iterable):
         :raises TypeError: if received not VariableKey or str.
         """
         if isinstance(other_key, str):
-            self.next_piece = VariableKey(other_key)
+            self.next_pieces.append(VariableKey(other_key))
 
         elif isinstance(other_key, type(self)):
-            self.next_piece = other_key
+            self.next_pieces.append(other_key)
 
         else:
             raise TypeError(
@@ -53,7 +53,7 @@ class VariableKey(Iterable):
                 f"got {type(other_key)}"
             )
 
-        return self.next_piece
+        return self
 
     def __iter__(self) -> Iterator[str]:
         """
@@ -62,11 +62,11 @@ class VariableKey(Iterable):
 
         :return: string.
         """
-        if self.next_piece is None:
-            return self.root_key
-
         yield self.root_key
-        yield from iter(self.next_piece)
+
+        if self.next_pieces:
+            for next_piece in self.next_pieces:
+                yield from next_piece
 
     def __str__(self) -> str:
         return "[/]".join(iter(self))

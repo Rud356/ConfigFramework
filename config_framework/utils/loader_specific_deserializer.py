@@ -49,19 +49,16 @@ class LoaderSpecificDeserializer:
                 variable, cast_from_loader
             )
 
-        deserializer: Optional[CustomDeserializer] = self.deserializers.get(
-            type(cast_from_loader), None
-        )
+        try:
+            deserializer: CustomDeserializer = self.deserializers.get(
+                type(cast_from_loader), self.deserializers['*']
+            )
 
-        if deserializer is None:
-            try:
-                deserializer: CustomDeserializer = self.deserializers['*']
-
-            except KeyError:
-                raise KeyError(
-                    f"Deserializer for {cast_from_loader} isn't specified"
-                    " and not found any default one."
-                )
+        except KeyError:
+            raise KeyError(
+                f"Deserializer for {cast_from_loader} isn't specified"
+                " and not found any default one."
+            )
 
         deserialized_variable: Var = deserializer(
             variable,
@@ -69,7 +66,7 @@ class LoaderSpecificDeserializer:
             # to deserialize
         )
         variable.validate_value(deserialized_variable)
-        return deserializer
+        return deserialized_variable
 
     @staticmethod
     def fetch_original_source(

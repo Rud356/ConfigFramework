@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import (
     TypeVar, Generic, Optional,
     Union, Any, TYPE_CHECKING,
-    Type, Callable,
+    Type, Callable, overload,Literal
 )
 
 from . import custom_exceptions
@@ -14,8 +14,8 @@ if TYPE_CHECKING:
 
 Var = TypeVar("Var")
 CustomSerializer = Callable[["Variable", Var], Any]
-CustomDeserializer: Callable[["Variable", Any], Var]
-CustomValidator: Callable[["Variable", Var], bool]
+CustomDeserializer = Callable[["Variable", Any], Var]
+CustomValidator = Callable[["Variable", Var], bool]
 
 
 class Variable(Generic[Var]):
@@ -27,6 +27,10 @@ class Variable(Generic[Var]):
         default: Optional[Var] = None
     ):
         self.default: Optional[Var] = default
+
+        if self.default is not None:
+            self.validate_value(self.default)
+
         self.source: AbstractLoader = source
 
         if isinstance(key, str):
@@ -43,6 +47,18 @@ class Variable(Generic[Var]):
 
         self._value = self.deserialize(self._value)
 
+    @overload
+    def __get__(
+        self, instance: None, cls: Any
+    ) -> Variable[Var]:
+        ...
+
+    @overload
+    def __get__(
+        self, instance: AbstractLoader, cls: Type[AbstractLoader]
+    ) -> Var:
+        ...
+
     def __get__(
         self, instance: Optional[AbstractLoader], cls: Type[AbstractLoader]
     ) -> Union[Var, Variable[Var]]:
@@ -55,10 +71,11 @@ class Variable(Generic[Var]):
         returns: Variable._value or Variable instance, depending on conditions,
             explained previously.
         """
-        if instance is None:
-            return self
+        if instance:
+            return self._value
 
-        return self._value
+        else:
+            return self
 
     def __set__(self, value: Var) -> None:
         """
@@ -119,12 +136,25 @@ class Variable(Generic[Var]):
             to your config_framework.types.custom_exceptions.InvalidValueError.
         """
         try:
-            return self.custom_validator(self, value)
+            is_valid = self.custom_validator(self, value)
+            if not is_valid:
+                raise custom_exceptions.ValueValidationError()
+
+            return is_valid
 
         except custom_exceptions.ValueValidationError as user_error:
             raise custom_exceptions.InvalidValueError(
                 f"{self.key} got invalid value from source {self.source}"
             ) from user_error
+
+    def _validate_default_value(self) -> None:
+        try:
+            self.validate_value(self.default)
+
+        except custom_exceptions.ValueValidationError as err:
+            raise ValueError(
+                f"Invalid default value for variable {self.key}"
+            ) from err
 
     @staticmethod
     def custom_serializer(variable: Variable, value: Var) -> Any:
