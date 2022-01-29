@@ -40,4 +40,4 @@ jobs:
         
     - name: Lint with mypy
       run: |
-        mypy ConfigFramework
+        mypy config_framework
