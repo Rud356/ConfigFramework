@@ -3,6 +3,7 @@
 ![Python version](https://img.shields.io/pypi/pyversions/ConfigFramework)
 ![PyPi downloads/m](https://img.shields.io/pypi/dm/ConfigFramework)
 ![Issues](https://img.shields.io/github/issues/Rud356/ConfigFramework)
+[![Python package](https://github.com/Rud356/ConfigFramework/actions/workflows/python-tests.yml/badge.svg)](https://github.com/Rud356/ConfigFramework/actions/workflows/python-tests.yml)
 
 A small and simple framework to build your configs. 
 
