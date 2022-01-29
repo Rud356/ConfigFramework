@@ -160,7 +160,7 @@ What's different?
 - Usage of VariableKey to create key that will tell how to access nested values
   without worrying about what symbols to use, but requiring to explicitly write
   VariableKey whenever you want to go from this root key
-- Improved usability
+- Improved usability by using descriptors and making more logical arguments order
 - By default, config will not allow you assigning any values after `__post_init__` was called
 
 Known issues
