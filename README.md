@@ -34,13 +34,15 @@ To install with mypy and dev dependencies building requirements you must use com
 
 Here's basic example:
 ```python3
-from config_framework import BaseConfig, VariableKey, Variable
+from typing import Tuple
+from config_framework import BaseConfig, VariableKey, Variable, types
 from config_framework.loaders import Dict
 
 loader = Dict.load(
     data=dict(
         user_id=1,
-        nested_val=dict(pi=3.14)
+        nested_val=dict(pi=3.14),
+        python="3.6.7"
     )
 )
 
@@ -52,7 +54,36 @@ class ConfigSample(BaseConfig):
     # Also default values will be validated after initializing
     # and after you register new validator.
     some_value = Variable(loader, "not_found_value", default="Hello world")
+    python: Variable[Tuple[int, int, int]] = Variable(
+          loader, "python"
+      )
 
+    @staticmethod
+    @python.register_deserializer
+    def deserialize_version(
+        var: Variable, value: str
+    ) -> Tuple[int, int, int]:
+        version = tuple(map(int, value.split(".")))
+        if len(version) != 3:
+            raise types.custom_exceptions.InvalidValueError(
+                "Version must contain 3 parts"
+            )
+
+        return version  # noqa: there's a check on being must be exactly 3 parts
+
+    @staticmethod
+    @python.register_serializer
+    def serialize_version(
+        var: Variable, value: Tuple[int, int, int]
+    ) -> str:
+        if len(value) != 3:
+            raise types.custom_exceptions.InvalidValueError(
+                "Version must contain 3 parts"
+            )
+
+        version = ".".join(map(str, value))
+        return version
+    
     @staticmethod
     @user_id.register_validator
     def validate_user_id(var, value):
@@ -79,8 +110,8 @@ print("Post inited value:", config.new_value)
 # create an instance of like this: ConfigSample(frozen=False)
 # But right now it will raise NotImplementedError
 config.some_value = "random"
-
 ```
+
 See examples with explanation [here](https://github.com/Rud356/ConfigFramework/blob/master/examples/)
 
 ## Supported formats

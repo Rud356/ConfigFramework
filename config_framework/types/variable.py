@@ -217,6 +217,7 @@ class Variable(Generic[Var]):
         """
         Registers passed function as custom_validator to be used later
         and instantly validates current value.
+
         :param f: some method that signature matches to CustomValidator.
         :return: function itself.
         """
@@ -231,6 +232,7 @@ class Variable(Generic[Var]):
         """
         Registers passed function as custom_serializer to be used later
         and instantly uses it to trigger possible errors.
+
         :param f: some method that signature matches to CustomSerializer.
         :return: function itself.
         """
@@ -245,6 +247,7 @@ class Variable(Generic[Var]):
         """
         Registers passed function as custom_deserializer to be used later
         and instantly uses it to trigger possible errors on value from.
+
         :param f: some method that signature matches to CustomDeserializer.
         :return: function itself.
         """

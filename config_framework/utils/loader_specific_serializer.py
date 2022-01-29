@@ -46,19 +46,22 @@ class LoaderSpecificSerializer:
                 cast_for_loader
             )
 
-        serializer = self.serializers.get(
-            type(cast_for_loader), None
-        )
-
-        if serializer is None:
-            try:
-                serializer = self.serializers['*']
-
-            except KeyError:
-                raise KeyError(
-                    f"Serializer for {cast_for_loader} isn't specified"
-                    " and not found any default one."
+        try:
+            if '*' in self.serializers:
+                serializer: CustomSerializer = self.serializers.get(
+                    type(cast_for_loader), self.serializers['*']
                 )
+
+            else:
+                serializer: CustomSerializer = self.serializers[
+                    type(cast_for_loader)
+                ]
+
+        except KeyError:
+            raise KeyError(
+                f"Serializer for {cast_for_loader} isn't specified"
+                " and not found any default one."
+            )
 
         return serializer(variable, value)
 
