@@ -1,5 +1,5 @@
 from collections import ChainMap
-from typing import Optional, MutableMapping, Any, Tuple
+from typing import Optional, MutableMapping, Any, Tuple, Union
 
 from config_framework.types.abstract import AbstractLoader
 from config_framework.types.variable_key import VariableKey
@@ -31,7 +31,7 @@ class Composite(AbstractLoader):
         for loader in self.loaders:
             loader.dump()
 
-    def __delitem__(self, key: VariableKey) -> None:
+    def __delitem__(self, key: Union[str, VariableKey]) -> None:
         error_counter = 0
         for loader in self.loaders:
             try:
