@@ -39,23 +39,23 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(version_variable._value, 42)
 
     def test_serializing_to_other_loader(self):
-        specific_deserializer = utils.LoaderSpecificSerializer(
+        specific_serializer = utils.LoaderSpecificSerializer(
             {
                 loaders.JsonString: lambda var, value: json.dumps(value),
             }
         )
         version_variable = Variable(self.loader_json, "version")
-        version_variable.register_serializer(specific_deserializer)
+        version_variable.register_serializer(specific_serializer)
 
         self.assertEqual(version_variable.serialize(), '"42"')
 
     def test_serializing_to_any_loader(self):
-        specific_deserializer = utils.LoaderSpecificSerializer(
+        specific_serializer = utils.LoaderSpecificSerializer(
             {
                 "*": lambda var, value: json.dumps(value)
             }
         )
         version_variable = Variable(self.loader_json, "version")
-        version_variable.register_serializer(specific_deserializer)
+        version_variable.register_serializer(specific_serializer)
 
         self.assertEqual(version_variable.serialize(), '"42"')
