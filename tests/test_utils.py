@@ -1,7 +1,7 @@
-import unittest
 import json
+import unittest
 
-from config_framework import BaseConfig, loaders, utils, Variable
+from config_framework import loaders, utils, Variable
 
 
 class TestUtils(unittest.TestCase):
