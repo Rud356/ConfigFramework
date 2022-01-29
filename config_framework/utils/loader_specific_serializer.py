@@ -53,7 +53,7 @@ class LoaderSpecificSerializer:
                 )
 
             else:
-                serializer: CustomSerializer = self.serializers[
+                serializer = self.serializers[
                     type(cast_for_loader)
                 ]
 

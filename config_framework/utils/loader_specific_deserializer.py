@@ -56,7 +56,7 @@ class LoaderSpecificDeserializer:
                 )
 
             else:
-                deserializer: CustomDeserializer = self.deserializers[
+                deserializer = self.deserializers[
                     type(cast_from_loader)
                 ]
 

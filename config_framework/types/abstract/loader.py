@@ -82,7 +82,7 @@ class AbstractLoader(MutableMapping, abc.ABC):
         if isinstance(key, str):
             key = VariableKey(key)
 
-        variable: ChainMap = self.lookup_data
+        variable: MutableMapping[str, Any] = self.lookup_data
         key_as_tuple = tuple(key)
         for sub_key in key_as_tuple[:-1]:
             try:
