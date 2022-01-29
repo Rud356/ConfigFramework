@@ -20,11 +20,11 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     license="GPLv3",
     url="https://github.com/Rud356/ConfigFramework",
-    packages=setuptools.find_packages(exclude=["tests"]),
+    packages=setuptools.find_packages(exclude=["tests", "examples"]),
     install_requires=requirements,
     extras_require={
         'mypy': ["mypy", "types-PyYAML"],
-        'dev': dev_requirement_f
+        'dev': dev_requirements
     },
     classifiers=[
         "Programming Language :: Python :: 3.7",
