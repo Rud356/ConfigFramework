@@ -50,9 +50,15 @@ class LoaderSpecificDeserializer:
             )
 
         try:
-            deserializer: CustomDeserializer = self.deserializers.get(
-                type(cast_from_loader), self.deserializers['*']
-            )
+            if '*' in self.deserializers:
+                deserializer: CustomDeserializer = self.deserializers.get(
+                    type(cast_from_loader), self.deserializers['*']
+                )
+
+            else:
+                deserializer: CustomDeserializer = self.deserializers[
+                    type(cast_from_loader)
+                ]
 
         except KeyError:
             raise KeyError(
