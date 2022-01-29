@@ -26,7 +26,7 @@ class AbstractLoader(MutableMapping, abc.ABC):
         self.defaults = defaults
 
         self.__created_at: str = str(time())
-        self.lookup_data = ChainMap(self.data, self.defaults)
+        self.lookup_data: ChainMap = ChainMap(self.data, self.defaults)
 
     def get(
         self, key: Union[VariableKey, str],
@@ -82,7 +82,7 @@ class AbstractLoader(MutableMapping, abc.ABC):
         if isinstance(key, str):
             key = VariableKey(key)
 
-        variable: Any = self.lookup_data
+        variable: ChainMap = self.lookup_data
         key_as_tuple = tuple(key)
         for sub_key in key_as_tuple[:-1]:
             try:
@@ -94,6 +94,10 @@ class AbstractLoader(MutableMapping, abc.ABC):
                 ) from key_error
 
         variable_key = key_as_tuple[-1]
+        if variable_key not in variable:
+            raise KeyError(
+                f"There's no such key in loader: {key}"
+            )
         variable[variable_key] = value
 
     @abc.abstractmethod
@@ -125,8 +129,14 @@ class AbstractLoader(MutableMapping, abc.ABC):
             an instance of AbstractLoader subclass.
         """
         if isinstance(other_loader, AbstractLoader):
-            other_loader.defaults = self.defaults
+            if include_defaults:
+                other_loader.defaults = self.defaults
+
             other_loader.data = self.data
+            other_loader.lookup_data = ChainMap(
+                other_loader.data,
+                other_loader.defaults
+            )
             other_loader.dump(include_defaults)
 
         else:
@@ -138,7 +148,7 @@ class AbstractLoader(MutableMapping, abc.ABC):
     def __str__(self) -> str:
         return self.__class__.__name__
 
-    def __delitem__(self, key: VariableKey) -> None:
+    def __delitem__(self, key: Union[str, VariableKey]) -> None:
         """
         Deletes value from loader by VariableKey.
 

@@ -4,7 +4,7 @@ class InvalidValueError(ValueError):
     """
 
 
-class ValueValidationError(ValueError):
+class ValueValidationError(InvalidValueError):
     """
     Raised if received value that hasn't passed users checks.
     """
