@@ -29,6 +29,8 @@ and at the same time powerful enough tool to create configs, validate them throu
 
 Installing
 ==========
+Pypi link: https://pypi.org/project/ConfigFramework
+
 Install with command:
 ``pip install ConfigFramework``
 

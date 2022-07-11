@@ -22,6 +22,10 @@ class AbstractLoader(MutableMapping, abc.ABC):
         self, data: MutableMapping[str, Any],
         defaults: MutableMapping[str, Any]
     ):
+        # Fixes errors when loader returns None from empty file or smt like that
+        if data is None:
+            data = {}
+
         self.data = data
         self.defaults = defaults
 
