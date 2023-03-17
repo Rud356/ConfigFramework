@@ -80,7 +80,7 @@ class AbstractLoader(MutableMapping, abc.ABC):
         :param key: key that is used to find an item.
         :return: any value.
         :raises KeyError: if corresponding item wasn't found
-            raises KeyValue with details
+            raises KeyError with details
             about which key was used and what part of it wasn't found.
         """
         if isinstance(key, str):
