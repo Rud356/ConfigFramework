@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, Union, Any, Type
+from typing import Dict, Union, Any, Type, Optional
 
 from config_framework.loaders.composite import Composite
 from config_framework.types import Variable
@@ -39,7 +39,10 @@ class LoaderSpecificSerializer:
             to be transformed to loaders type.
         :returns: anything.
         """
-        cast_for_loader = variable.source
+        assert hasattr(variable, "source"), f"No source loader specified for variable {variable.key}"
+        cast_for_loader: Optional[AbstractLoader] = variable.source
+        assert cast_for_loader is not None, f"Variable {variable.key} has loader set to None"
+
         if isinstance(cast_for_loader, Composite):
             cast_for_loader = self.fetch_original_source(
                 variable,  # noqa: we need this value from internals

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, Union, Any, Type
+from typing import Dict, Union, Any, Type, Optional
 
 from config_framework.loaders.composite import Composite
 from config_framework.types import Variable
@@ -42,7 +42,9 @@ class LoaderSpecificDeserializer:
             from which loader value is from. This contains also a traceback
             to your config_framework.types.custom_exceptions.InvalidValueError.
         """
-        cast_from_loader = variable.source
+        assert hasattr(variable, "source"), f"No source loader specified for variable {variable.key}"
+        cast_from_loader: Optional[AbstractLoader] = variable.source
+        assert cast_from_loader is not None, f"Variable {variable.key} has loader set to None"
 
         if isinstance(cast_from_loader, Composite):
             cast_from_loader = self.fetch_original_source(
@@ -68,8 +70,7 @@ class LoaderSpecificDeserializer:
 
         deserialized_variable: Var = deserializer(
             variable,
-            variable._value  # noqa: we need to get this value from variable
-            # to deserialize
+            from_value
         )
         variable.validate_value(deserialized_variable)
         return deserialized_variable

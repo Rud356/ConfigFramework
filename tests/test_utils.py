@@ -22,8 +22,9 @@ class TestUtils(unittest.TestCase):
                 loaders.JsonString: lambda var, value: int(value),
             }
         )
-        version_variable = Variable(self.loader_json, "version")
+        version_variable = Variable("version")
         version_variable.register_deserializer(specific_deserializer)
+        version_variable._set_value_from_loader(self.loader_json)
 
         self.assertEqual(version_variable._value, 42)
 
@@ -33,8 +34,9 @@ class TestUtils(unittest.TestCase):
                 "*": lambda var, value: int(value)
             }
         )
-        version_variable = Variable(self.loader_json, "version")
+        version_variable = Variable("version")
         version_variable.register_deserializer(specific_deserializer)
+        version_variable._set_value_from_loader(self.loader_json)
 
         self.assertEqual(version_variable._value, 42)
 
@@ -44,8 +46,9 @@ class TestUtils(unittest.TestCase):
                 loaders.JsonString: lambda var, value: json.dumps(value),
             }
         )
-        version_variable = Variable(self.loader_json, "version")
+        version_variable = Variable("version")
         version_variable.register_serializer(specific_serializer)
+        version_variable._set_value_from_loader(self.loader_json)
 
         self.assertEqual(version_variable.serialize(), '"42"')
 
@@ -55,7 +58,8 @@ class TestUtils(unittest.TestCase):
                 "*": lambda var, value: json.dumps(value)
             }
         )
-        version_variable = Variable(self.loader_json, "version")
+        version_variable = Variable("version")
         version_variable.register_serializer(specific_serializer)
+        version_variable._set_value_from_loader(self.loader_json)
 
         self.assertEqual(version_variable.serialize(), '"42"')
