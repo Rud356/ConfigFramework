@@ -27,7 +27,9 @@ classifiers = [
 dependencies = [
     "pyyaml>=6.0.0",
 ]
-dynamic = ["version"]
+
+[tool.setuptools.dynamic]
+version = {attr = "config_framework.__init__.__version__"}
 
 [tool.setuptools.packages.find]
 where = ["config_framework"]
