@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable, Union, Optional, Iterator, List
+from typing import Iterable, Union, Iterator, List
 
 
 class VariableKey(Iterable):

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import (
     TypeVar, Generic, Optional,
     Union, Any, TYPE_CHECKING,
-    Type, Callable, overload, List
+    Type, Callable, overload
 )
 
 from . import custom_exceptions
