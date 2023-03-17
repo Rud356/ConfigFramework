@@ -18,7 +18,7 @@ setuptools.setup(
     description="A small framework to build your flexible project configurations",
     long_description=text,
     long_description_content_type="text/markdown",
-    license="GPLv3",
+    license="MIT",
     url="https://github.com/Rud356/ConfigFramework",
     packages=setuptools.find_packages(exclude=["tests", "examples"]),
     package_data={"config_framework": ["py.typed"]},
