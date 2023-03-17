@@ -19,7 +19,7 @@ CustomValidator = Callable[["Variable", Var], bool]
 
 
 class Variable(Generic[Var]):
-    source: AbstractLoader
+    source: Optional[AbstractLoader]
     _value: Var
 
     def __init__(
@@ -98,11 +98,12 @@ class Variable(Generic[Var]):
         :param loader:
         :return:
         """
+        self.source = loader
         if not self.default:
-            value = self.deserialize(self.source[self.key])
+            value = self.deserialize(loader[self.key])
 
         else:
-            value = self.deserialize(self.source.get(self.key, self.default))
+            value = self.deserialize(loader.get(self.key, self.default))
 
         self.__set__(self, value)
 
@@ -111,7 +112,7 @@ class Variable(Generic[Var]):
     ) -> Any:  # noqa:
         # Might be used by other functions.
         """
-        Casts variables value to specific loaders type so it can be saved.
+        Casts variables value to specific loaders type, so it can be saved.
 
         :returns: anything.
         """
@@ -141,9 +142,9 @@ class Variable(Generic[Var]):
         """
         Checks if certain value is correct via users code.
 
-        :param value: value of correct python type (after being casted from
+        :param value: value of correct python type (after being cast from
             raw loader value) that will be validated.
-        :returns: bool value representing if its correct or not.
+        :returns: bool value representing if It's correct or not.
 
         :raises config_framework.types.custom_exceptions.ValueValidationError:
             adds explanation on where is invalid value in your config and
@@ -159,7 +160,7 @@ class Variable(Generic[Var]):
 
         except custom_exceptions.ValueValidationError as user_error:
             raise custom_exceptions.InvalidValueError(
-                f"{self.key} got invalid value from source {self.source}"
+                f"{self.key} got invalid value"
             ) from user_error
 
     def _validate_default_value(self) -> None:
@@ -237,7 +238,11 @@ class Variable(Generic[Var]):
         """
         setattr(self, "custom_validator", f)
         # Validating already existing value with new validator
-        self.validate_value(self._value)
+        if self.default is not None:
+            self.validate_value(self.default)
+
+        if hasattr(self, "_value"):
+            self.validate_value(self._value)
         return f
 
     def register_serializer(
@@ -251,8 +256,6 @@ class Variable(Generic[Var]):
         :return: function itself.
         """
         setattr(self, "custom_serializer", f)
-        # Testing if serializer works fine
-        self.serialize()
         return f
 
     def register_deserializer(
@@ -266,18 +269,4 @@ class Variable(Generic[Var]):
         :return: function itself.
         """
         setattr(self, "custom_deserializer", f)
-        # Testing if deserializer works fine after being set
-        # and applying it to value from source.
-
-        if not self.default:
-            self._value = self.deserialize(
-                self.source[self.key]
-            )
-
-        else:
-            self._value = self.deserialize(
-                self.source.get(self.key, self.default)
-            )
-
-        self.validate_value(self._value)
         return f

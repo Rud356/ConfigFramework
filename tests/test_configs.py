@@ -22,10 +22,10 @@ class TestConfig(unittest.TestCase):
         )
 
         class BasicConfig(BaseConfig):
-            rud: Variable[str] = Variable(config_data, "rud")
-            is_author: Variable[str] = Variable(config_data, "is author")
+            rud: Variable[str] = Variable("rud")
+            is_author: Variable[str] = Variable("is author")
             nested_data: Variable[str] = Variable(
-                config_data, VariableKey("nested") / "data"
+                VariableKey("nested") / "data"
             )
 
             @staticmethod
@@ -39,7 +39,7 @@ class TestConfig(unittest.TestCase):
                 return True
 
         cls.config_data = config_data
-        cls.immutable_config: BasicConfig = BasicConfig()
+        cls.immutable_config: BasicConfig = BasicConfig(config_data)
         cls.ConfigClass = BasicConfig
 
     def test_variables_fetching(self):
@@ -50,11 +50,11 @@ class TestConfig(unittest.TestCase):
             self.immutable_config.rud = "356"
 
     def test_values_assignment(self):
-        mutable_instance = copy.deepcopy(self.ConfigClass)(frozen=False)
+        mutable_instance = copy.deepcopy(self.ConfigClass)(self.config_data, frozen=False)
         mutable_instance.is_author = False
 
     def test_validation_of_data(self):
-        mutable_instance = copy.deepcopy(self.ConfigClass)(frozen=False)
+        mutable_instance = copy.deepcopy(self.ConfigClass)(self.config_data, frozen=False)
 
         with self.assertRaises(types.custom_exceptions.InvalidValueError):
             # This value will fail check
@@ -69,7 +69,7 @@ class TestConfig(unittest.TestCase):
 
         class Config(BaseConfig):
             python: Variable[Tuple[int, int, int]] = Variable(
-                config_data, "python"
+                "python"
             )
 
             @staticmethod
@@ -85,7 +85,7 @@ class TestConfig(unittest.TestCase):
 
                 return version # noqa: there's a check on being must be exactly 3 parts
 
-        conf = Config()
+        conf = Config(config_data)
         self.assertEqual(conf.python, (3, 6, 7))
 
     def test_invalid_values_parsing(self):
@@ -97,7 +97,7 @@ class TestConfig(unittest.TestCase):
 
         with self.assertRaises(types.custom_exceptions.InvalidValueError):
             python: Variable[Tuple[int, int, int]] = Variable(
-                config_data, "python"
+                "python"
             )
 
             @python.register_deserializer
@@ -112,6 +112,7 @@ class TestConfig(unittest.TestCase):
 
                 return version  # noqa: there's a check on being must be exactly 3 parts
 
+            python._set_value_from_loader(config_data)
     def test_values_serialization(self):
         config_data = loaders.Dict.load(
             {
@@ -146,5 +147,5 @@ class TestConfig(unittest.TestCase):
 
             version = ".".join(map(str, value))
             return version
-
+        python._set_value_from_loader(config_data)
         self.assertEqual(config_data['python'], python.serialize())
