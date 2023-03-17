@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import (
     TypeVar, Generic, Optional,
     Union, Any, TYPE_CHECKING,
-    Type, Callable, overload
+    Type, Callable, overload, List
 )
 
 from . import custom_exceptions
@@ -19,33 +19,23 @@ CustomValidator = Callable[["Variable", Var], bool]
 
 
 class Variable(Generic[Var]):
+    source: AbstractLoader
     _value: Var
 
     def __init__(
-        self, source: AbstractLoader,
+        self,
         key: Union[VariableKey, str],
         default: Optional[Var] = None
     ):
-        self.default: Optional[Var] = default
-
-        if self.default is not None:
-            self.validate_value(self.default)
-
-        self.source: AbstractLoader = source
+        self.default = default
+        if default is not None:
+            self.validate_value(default)
+            self.default = default
 
         if isinstance(key, str):
             key = VariableKey(key)
 
         self.key: VariableKey = key
-        self.default = default
-
-        if not default:
-            self._value = self.deserialize(self.source[key])
-
-        else:
-            self._value = self.deserialize(self.source.get(key, default))
-
-        self._value = self.deserialize(self._value)
 
     @overload
     def __get__(
@@ -71,9 +61,17 @@ class Variable(Generic[Var]):
         :param cls: class from which variable was called.
         returns: Variable._value or Variable instance, depending on conditions,
             explained previously.
+        :raises ValueError: if there are no defaults or
         """
         if instance:
-            return self._value
+            try:
+                return self._value
+
+            except AttributeError:
+                if self.default is not None:
+                    return self.default
+
+                raise ValueError(f"No variable value set for variable with key {self.key}")
 
         else:
             return self
@@ -82,6 +80,8 @@ class Variable(Generic[Var]):
         """
         Sets a new value to your variable.
 
+        :param obj: object from which method was called.
+        :param value: which value will be assigned to _value field.
         :raises config_framework.types.custom_exceptions.ValueValidationError:
             adds explanation on where is invalid value in your config and
             from which loader value is from. This contains also a traceback
@@ -90,7 +90,21 @@ class Variable(Generic[Var]):
         self.validate_value(value)
         self._value = value
 
-        self.source[self.key] = self.serialize()
+    def _set_value_from_loader(self, loader: AbstractLoader) -> None:
+        """
+        Helps to set value to Variable object with validation to allow initialization of it
+        during creating Config object, so users can choose desired loaders on startup.
+
+        :param loader:
+        :return:
+        """
+        if not self.default:
+            value = self.deserialize(self.source[self.key])
+
+        else:
+            value = self.deserialize(self.source.get(self.key, self.default))
+
+        self.__set__(self, value)
 
     def serialize(
         self: Variable
