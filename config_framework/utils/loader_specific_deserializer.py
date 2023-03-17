@@ -29,11 +29,11 @@ class LoaderSpecificDeserializer:
 
     def __call__(
         self,
-        variable: Variable,
+        variable: Variable[Var],
         from_value: Any,
     ) -> Var:
         """
-        Casts value to specific loaders type so it can be saved.
+        Casts value to specific loaders type, so it can be saved.
 
         :param from_value: raw value from loader.
         :returns: validated and caster to python type value.
