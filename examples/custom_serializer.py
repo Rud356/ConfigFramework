@@ -16,7 +16,7 @@ class Uid(int):
 
 
 class ConfigSample(BaseConfig):
-    user_id: Variable[Uid] = Variable(loader, VariableKey("user_id"))
+    user_id: Variable[Uid] = Variable(VariableKey("user_id"))
 
     @staticmethod
     @user_id.register_serializer
@@ -35,7 +35,7 @@ class ConfigSample(BaseConfig):
 
 # Here we will get error with more detailed explanation about what happened
 # and our own addition will tell us more too!
-config = ConfigSample(frozen=False)
+config = ConfigSample(loader, frozen=False)
 print(config.user_id)
 print(type(config.user_id))
 

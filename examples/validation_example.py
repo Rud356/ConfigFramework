@@ -1,14 +1,14 @@
 from config_framework import BaseConfig, VariableKey, Variable
 from config_framework.loaders import Dict
-from config_framework.types.custom_exceptions import ValueValidationError
+from config_framework.types.custom_exceptions import ValueValidationError, InvalidValueError
 
 loader = Dict.load(
-    data=dict(user_id=1)
+    data=dict(user_id=2)
 )
 
 
 class ConfigSample(BaseConfig):
-    user_id: Variable[int] = Variable(loader, VariableKey("user_id"))
+    user_id: Variable[int] = Variable(VariableKey("user_id"))
 
     @staticmethod
     @user_id.register_validator
@@ -22,6 +22,12 @@ class ConfigSample(BaseConfig):
         return True
 
 
-# Here we will get error with more detailed explanation about what happened
-# and our own addition will tell us more too!
-config = ConfigSample()
+try:
+    # here it is okay
+    config = ConfigSample(loader, frozen=False)
+
+    # and from here we'll get error after changing value
+    config.user_id = 3
+
+except InvalidValueError as e:
+    print(f"Oh well, we got the error!\nException: {e}")

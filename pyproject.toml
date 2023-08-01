@@ -11,14 +11,15 @@ authors = [
 description = "A small framework to build your flexible project configurations"
 readme = "README.md"
 requires-python = ">=3.7"
-keywords = ["one", "two"]
-license = {text = "BSD-3-Clause"}
+keywords = ["config", "configuration", "config managment", "configuration managment"]
+license = {text = "MIT License"}
 classifiers = [
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Intended Audience :: Developers",
@@ -36,5 +37,6 @@ where = ["config_framework"]
 exclude = ["tests", "examples"]
 
 [project.optional-dependencies]
-mypy = ["mypy", "types-PyYAML"]
+mypy = ["mypy", "types-PyYAML", "types-toml"]
+toml = ["toml"]
 dev = ["sphinx~=5.0.2", "sphinx-rtd-theme~=1.0.0", "Pygments~=2.12.0"]

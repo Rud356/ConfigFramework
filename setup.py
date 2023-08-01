@@ -24,7 +24,8 @@ setuptools.setup(
     package_data={"config_framework": ["py.typed"]},
     install_requires=requirements,
     extras_require={
-        'mypy': ["mypy", "types-PyYAML"],
+        "toml": ["toml"],
+        'mypy': ["mypy", "types-PyYAML", "types-toml"],
         'dev': dev_requirements
     },
     classifiers=[
@@ -33,6 +34,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Intended Audience :: Developers",

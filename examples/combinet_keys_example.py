@@ -14,10 +14,10 @@ class ConfigSample(BaseConfig):
     path_to_variable = VariableKey("longer_nested_value") / "target"
     combined_key = VariableKey("nested_val") / path_to_variable
 
-    var = Variable(loader, combined_key)
+    var = Variable(combined_key)
 
 
-config = ConfigSample()
+config = ConfigSample(loader)
 # This is an example of how you can combine multiple keys to split
 # long keys into parts
 print("Value:", config.var)
