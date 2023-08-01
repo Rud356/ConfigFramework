@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -9,8 +9,7 @@ authors = [
     {name = "Rud356", email = "rud356github@gmail.com"},
 ]
 description = "A small framework to build your flexible project configurations"
-readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.7.0"
 keywords = ["config", "configuration", "config managment", "configuration managment"]
 license = {text = "MIT License"}
 classifiers = [
@@ -31,9 +30,11 @@ dependencies = [
 
 [tool.setuptools.dynamic]
 version = {attr = "config_framework.__init__.__version__"}
+readme = {file = 'README.md'}
 
 [tool.setuptools.packages.find]
-where = ["config_framework"]
+where = ["./"]
+include = ["config_framework*"]
 exclude = ["tests", "examples"]
 
 [project.optional-dependencies]
