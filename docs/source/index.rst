@@ -37,6 +37,9 @@ Install with command:
 To install with mypy you must use command:
 ``pip install ConfigFramework[mypy]``
 
+If you have python below 3.11 or need toml format with ability to write it back:
+``pip install ConfigFramework[toml]``
+
 To install with mypy and docs building requirements you must use command:
 ``pip install ConfigFramework[mypy,docs]``
 
@@ -45,55 +48,23 @@ Example of usage
 
 .. code-block:: python
 
-    from typing import Tuple
-    from config_framework import BaseConfig, VariableKey, Variable, types
+    from config_framework import BaseConfig, VariableKey, Variable
     from config_framework.loaders import Dict
 
     loader = Dict.load(
         data=dict(
             user_id=1,
-            nested_val=dict(pi=3.14),
-            python="3.6.7"
+            nested_val=dict(pi=3.14)
         )
     )
 
 
     class ConfigSample(BaseConfig):
-        user_id: Variable[int] = Variable(loader, VariableKey("user_id"))
-        pi_value = Variable(loader, VariableKey("nested_val") / "pi")
+        user_id: Variable[int] = Variable(VariableKey("user_id"))
+        pi_value = Variable(VariableKey("nested_val") / "pi")
         # Defaults only applied when key isn't found.
-        # Also default values will be validated after initializing
-        # and after you register new validator.
-        some_value = Variable(loader, "not_found_value", default="Hello world")
-        python: Variable[Tuple[int, int, int]] = Variable(
-              loader, "python"
-          )
-
-        @staticmethod
-        @python.register_deserializer
-        def deserialize_version(
-            var: Variable, value: str
-        ) -> Tuple[int, int, int]:
-            version = tuple(map(int, value.split(".")))
-            if len(version) != 3:
-                raise types.custom_exceptions.InvalidValueError(
-                    "Version must contain 3 parts"
-                )
-
-            return version  # noqa: there's a check on being must be exactly 3 parts
-
-        @staticmethod
-        @python.register_serializer
-        def serialize_version(
-            var: Variable, value: Tuple[int, int, int]
-        ) -> str:
-            if len(value) != 3:
-                raise types.custom_exceptions.InvalidValueError(
-                    "Version must contain 3 parts"
-                )
-
-            version = ".".join(map(str, value))
-            return version
+        # Also default values will be validated after initializing, and after you register new validator.
+        some_value = Variable("not_found_value", default="Hello world")
 
         @staticmethod
         @user_id.register_validator
@@ -110,7 +81,7 @@ Example of usage
             self.new_value = 122
 
 
-    config = ConfigSample()
+    config = ConfigSample(loader)
     print("User id:", config.user_id)
     print("Pi value:", config.pi_value)
     print("Some value:", config.some_value)
@@ -121,13 +92,12 @@ Example of usage
     # create an instance of like this: ConfigSample(frozen=False)
     # But right now it will raise NotImplementedError
     config.some_value = "random"
-
-
 See examples with explanation `here <https://github.com/Rud356/ConfigFramework/blob/master/examples/>`_
 
 Supported config formats
 ========================
 - Yaml
+- Toml (read only with default lib included with python 3.11, and read-write with toml external lib)
 - Json (strings or files)
 - Environment variables
 - Pythons dictionaries
@@ -137,7 +107,6 @@ Features
 ========
 - Loading configs from multiple sources
 - Creating custom loaders and variables types
-- Nested configs
 - Flexible configs definition
 - Config values validations
 - Casting variables values to specific types using functions
@@ -147,23 +116,24 @@ Features
 - Translating one config loaders data to other (with or without including default values for each one)
 - Composite loaders that allow you to define where to look up values using only one loader, that handles
   combining others
-- Simpler access to variables values (new in 3.0)
+- Simple access to variables values
+- Single entry point for initialization of config with loader
 
-About 3.0
+About 4.0
 =========
-This version of config framework breaks many things and has other structure,
-so you will have to manually migrate to this one. I think it was necessary
-to improve many things, and I hope it will make your life easier.
+This version of ConfigFramework is not backwards compatible and requires a bit of work to make migration.
+It was needed to get rid of annoying initialization with one config loader per variable listing, which
+also made it really hard to replace config sources and made it more uncertain where is the source of data for variable.
 
 What's different?
 =================
-- Now module will be called config_framework when you import it into project
-- Structure of whole project is different comparing to 2.0
-- Usage of VariableKey to create key that will tell how to access nested values
-  without worrying about what symbols to use, but requiring to explicitly write
-  VariableKey whenever you want to go from this root key
-- Improved usability by using descriptors and making more logical arguments order
-- By default, config will not allow you assigning any values after `__post_init__` was called
+- Configs must get only one loader as input when initializing them, and all variables don't have argument for specifying loader.
+
+- Added toml support for python above 3.11 and with external library that adds ability to read and write data.
+
+- Changes in internals regarding variables initialization to support assigning data from provided loader dynamically on initialization of whole config.
+
+- Added pyproject.toml for more modern package management.
 
 Known issues
 ============
