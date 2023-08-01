@@ -8,9 +8,11 @@ try:
     from .toml_full_features import Toml
 
 except ImportError:
-    try:
-        from .toml_read_only import TomlReadOnly as Toml
+    pass
 
-    except ImportError:
-        # We don't have any library that supports toml for this python
-        pass
+try:
+    from .toml_read_only import TomlReadOnly
+
+except ImportError:
+    # We don't have any library that supports toml for this python
+    pass
