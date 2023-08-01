@@ -40,5 +40,5 @@ jobs:
         
     - name: Lint with mypy
       run: |
-        if [ ${{ matrix.python-version }} <= 3.11 ]; mypy -p config_framework --exclude .*/toml_read_only.py; fi
-        if [ ${{ matrix.python-version }} >= 3.11 ]; mypy -p config_framework; fi
+        if [ ${{ matrix.python-version }} <= 3.11 ]; then mypy -p config_framework --exclude .*/toml_read_only.py; fi
+        if [ ${{ matrix.python-version }} >= 3.11 ]; then mypy -p config_framework; fi
