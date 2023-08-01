@@ -1,7 +1,7 @@
 from functools import partial
 from os import PathLike
 from pathlib import Path
-from typing import Union, Optional, MutableMapping, Any, Callable
+from typing import Union, Optional, MutableMapping, Any, Callable, Dict
 
 import toml as toml_loader_lib
 
@@ -28,8 +28,8 @@ class Toml(TomlReadOnly):
     def load(
         cls, path: Union[PathLike, Path],
         defaults: Optional[MutableMapping[str, Any]] = None,
-        loader_kwargs: Optional[dict[Any, Any]] = None,
-        dumper_kwargs: Optional[dict[Any, Any]] = None,
+        loader_kwargs: Optional[Dict[Any, Any]] = None,
+        dumper_kwargs: Optional[Dict[Any, Any]] = None,
         encoding: str = "utf8",
     ):
         """
