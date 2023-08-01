@@ -4,7 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ConfigFramework"
-dynamic = ["version", "readme"]
+dynamic = ["version"]
+readme = "README.md"
 authors = [
     {name = "Rud356", email = "rud356github@gmail.com"},
 ]
@@ -30,7 +31,7 @@ dependencies = [
 
 [tool.setuptools.dynamic]
 version = {attr = "config_framework.__init__.__version__"}
-readme = {file = 'README.md'}
+
 
 [tool.setuptools.packages.find]
 where = ["./"]
