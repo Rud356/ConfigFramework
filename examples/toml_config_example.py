@@ -1,16 +1,12 @@
+from pathlib import Path
 from config_framework import BaseConfig, VariableKey, Variable
-from config_framework.loaders import Dict
+from config_framework.loaders import Toml
 
-loader = Dict.load(
-    data=dict(
-        user_id=1,
-        nested_val=dict(pi=3.14)
-    )
-)
+loader = Toml.load(Path("example.toml"))
 
 
 class ConfigSample(BaseConfig):
-    user_id: Variable[int] = Variable(VariableKey("user_id"))
+    user_id: Variable[int] = Variable(VariableKey("Data") / "user_id")
     pi_value = Variable(VariableKey("nested_val") / "pi")
     # Defaults only applied when key isn't found.
     # Also default values will be validated after initializing, and after you register new validator.

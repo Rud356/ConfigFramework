@@ -27,13 +27,4 @@ specific_serializer = utils.LoaderSpecificSerializer(
 
 version_variable = Variable(loader_json, "version")
 version_variable.register_deserializer(specific_deserializer)
-print(
-    version_variable._value == 42, "of type",  # noqa: we need this for example
-    type(version_variable._value)  # noqa: we need this for example
-)
-
 version_variable.register_serializer(specific_serializer)
-print(
-    version_variable.serialize() == '"42"', "of type",
-    type(version_variable.serialize()) # noqa: we need this for example
-)

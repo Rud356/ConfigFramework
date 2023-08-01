@@ -113,6 +113,7 @@ class TestConfig(unittest.TestCase):
                 return version  # noqa: there's a check on being must be exactly 3 parts
 
             python._set_value_from_loader(config_data)
+
     def test_values_serialization(self):
         config_data = loaders.Dict.load(
             {
@@ -121,7 +122,7 @@ class TestConfig(unittest.TestCase):
         )
 
         python: Variable[Tuple[int, int, int]] = Variable(
-            config_data, "python"
+            "python"
         )
 
         @python.register_deserializer
