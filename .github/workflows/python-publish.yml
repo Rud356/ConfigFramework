@@ -22,7 +22,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install setuptools wheel twine flake8 pytest mypy types-PyYAML types-toml
+        pip install setuptools wheel twine flake8 pytest mypy types-PyYAML types-toml toml
         pip install -r requirements.txt
         
     - name: Lint with flake8
