@@ -2,4 +2,6 @@ sphinx~=5.0.2
 sphinx-rtd-theme~=1.0.0
 Pygments>=2.15.0
 mypy~=1.4.1
+toml
+types-toml
 types-PyYAML
