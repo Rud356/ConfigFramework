@@ -43,6 +43,16 @@ class Yaml(AbstractLoader):
         yaml_loader=partial(yaml.load, Loader=Loader),
         yaml_dumper=partial(yaml.dump, Dumper=Dumper),
     ):
+        """
+        Loads yaml from file.
+
+        :param path: where is yaml file to load data from.
+        :param defaults: default values for config.
+        :param encoding: which encoding does config file has (defaults to utf-8).
+        :param yaml_loader: function that is used for loading data from file.
+        :param yaml_dumper: function that is used for saving data to file.
+        :return: instance of yaml loader.
+        """
         with open(path, encoding=encoding) as data_f:
             data = yaml_loader(data_f)
 

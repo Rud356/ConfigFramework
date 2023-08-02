@@ -30,6 +30,16 @@ class JsonString(AbstractLoader):
         json_loader=json.loads,
         json_dumper=partial(json.dumps, ensure_ascii=False, indent=4),
     ):
+        """
+        Loads json file from path into loader.
+
+        :param data_string: string with valid json formatted text.
+        :param defaults: default values.
+        :param encoding: which encoding does config file has (defaults to utf-8).
+        :param json_loader: function that loads json from string.
+        :param json_dumper: function that dumps to json string.
+        :return: instance of json string loader.
+        """
         data = json_loader(data_string)
 
         return cls(
@@ -39,7 +49,7 @@ class JsonString(AbstractLoader):
 
     def dump(self, include_defaults: bool = False) -> None:
         """
-        This method doesn't changes anything at all
+        This method doesn't change anything at all
         because strings are unchangeable.
 
         :param include_defaults: specifies if

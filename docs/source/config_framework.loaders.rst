@@ -40,6 +40,18 @@ Submodules
    :show-inheritance:
 
 
+.. automodule:: config_framework.loaders.toml_full_features
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+.. automodule:: config_framework.loaders.toml_read_only
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
 .. automodule:: config_framework.loaders.yaml
    :members:
    :undoc-members:

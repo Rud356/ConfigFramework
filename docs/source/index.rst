@@ -92,6 +92,7 @@ Example of usage
     # create an instance of like this: ConfigSample(frozen=False)
     # But right now it will raise NotImplementedError
     config.some_value = "random"
+
 See examples with explanation `here <https://github.com/Rud356/ConfigFramework/blob/master/examples/>`_
 
 Supported config formats

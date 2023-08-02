@@ -37,10 +37,8 @@ class Toml(TomlReadOnly):
 
         :param path: path that is used to load config.
         :param defaults: default values.
-        :param loader_kwargs: used for specifying parameters, according to
-        tomls' documentation of `toml.load` function.
-        :param dumper_kwargs: used for specifying parameters, according to
-        tomls' documentation of `toml.dump` function.
+        :param loader_kwargs: used for specifying parameters, according to toml documentation of `toml.load` function.
+        :param dumper_kwargs: used for specifying parameters, according to toml documentation of `toml.dump` function.
         :param encoding: which encoding should be used for a file.
         :return: instance of TomlReadOnly class.
         """

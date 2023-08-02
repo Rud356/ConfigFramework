@@ -35,6 +35,16 @@ class Json(AbstractLoader):
         json_loader=json.load,
         json_dumper=partial(json.dump, ensure_ascii=False, indent=4),
     ):
+        """
+        Loads json file from path into loader.
+
+        :param path: where file with json is located.
+        :param defaults: default values.
+        :param encoding: which encoding does config file has (defaults to utf-8).
+        :param json_loader: function that loads json file.
+        :param json_dumper: function that dumps to json file.
+        :return: instance of json loader.
+        """
         with open(path, encoding=encoding) as data_f:
             data = json_loader(data_f)
 

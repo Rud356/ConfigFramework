@@ -40,10 +40,12 @@ class TomlReadOnly(AbstractLoader):
 
         :param path: path that is used to load config.
         :param defaults: default values.
-        :param loader_kwargs: used for specifying parameters, according to
-        tomllibs' documentation of `tomllib.load` function.
+        :param loader_kwargs: used for specifying parameters, according to tomllib documentation of `tomllib.load`
+            function.
+
         :param dumper_kwargs: not used.
         :param encoding: which encoding should be used for a file.
+
         :return: instance of TomlReadOnly class.
         """
         with open(path, encoding=encoding, mode="b") as data_f:

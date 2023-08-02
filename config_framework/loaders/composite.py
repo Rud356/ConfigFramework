@@ -21,6 +21,13 @@ class Composite(AbstractLoader):
         cls, *loaders: AbstractLoader,
         defaults: Optional[MutableMapping[str, Any]] = None
     ):
+        """
+        Initializes composite loader.
+
+        :param loaders: any number of different config sources that can be used for providing configuration.
+        :param defaults: default values.
+        :return: instance of composite loader.
+        """
         return cls(
             data=ChainMap(*loaders),
             defaults=defaults or {},
