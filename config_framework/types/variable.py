@@ -10,9 +10,11 @@ from . import custom_exceptions
 from .variable_key import VariableKey
 
 if TYPE_CHECKING:
+    from .config import BaseConfig
     from .abstract.loader import AbstractLoader
 
 Var = TypeVar("Var")
+Source = TypeVar("Source", bound=Union[AbstractLoader, BaseConfig])
 CustomSerializer = Callable[["Variable", Var], Any]
 CustomDeserializer = Callable[["Variable", Any], Var]
 CustomValidator = Callable[["Variable", Var], bool]
@@ -45,13 +47,13 @@ class Variable(Generic[Var]):
 
     @overload
     def __get__(
-        self, instance: AbstractLoader, cls: Type[AbstractLoader]
+        self, instance: Source, cls: Union[Type[Source], Any]
     ) -> Var:
         ...
 
     def __get__(
-        self, instance: Optional[AbstractLoader],
-        cls: Union[Type[AbstractLoader], Any]
+        self, instance: Optional[Source],
+        cls: Union[Type[Source], Any]
     ) -> Union[Var, Variable[Var]]:
         """
         Gives you a value or Variable with your value depending on condition.
@@ -123,9 +125,9 @@ class Variable(Generic[Var]):
         from_value: Any
     ) -> Var:
         """
-        Performs additional type casting if loader doesn't provides it
+        Performs additional type casting if loader doesn't provide it
         out of the box and returns variable with needed type that will also
-        be validated after being casted.
+        be validated after being cast.
 
         :param from_value: raw value from loader.
         :returns: validated and caster to python type value.
@@ -192,12 +194,12 @@ class Variable(Generic[Var]):
     @staticmethod
     def custom_deserializer(variable: Variable, from_value: Any) -> Var:
         """
-        Method for defining how your custom variables must be casted from
+        Method for defining how your custom variables must be cast from
         loaders type to pythons one (if they don't translate 1:1). Can be
         set using decorator <variable_instance>.register_deserializer.
 
         :param variable: instance of Variable that is used to get
-            information about where this value from and etc.
+            information about where this value from etc.
         :param from_value: raw value from loader.
         :returns: validated and caster to python type value.
         :raises config_framework.types.custom_exceptions.ValueValidationError:
@@ -214,10 +216,10 @@ class Variable(Generic[Var]):
         using decorator <variable_instance>.register_validator.
 
         :param variable: instance of Variable that is used to get
-            information about where this value from and etc.
-        :param value: value of correct python type (after being casted from
+            information about where this value from etc.
+        :param value: value of correct python type (after being cast from
             raw loader value) that will be validated.
-        :returns: bool value representing if its correct or not.
+        :returns: bool value representing if it's correct or not.
 
         :raises config_framework.types.custom_exceptions.ValueValidationError:
             adds explanation on where is invalid value in your config and

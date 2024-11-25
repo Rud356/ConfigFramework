@@ -7,7 +7,7 @@ loader = Toml.load(Path("example.toml"))
 
 class ConfigSample(BaseConfig):
     user_id: Variable[int] = Variable(VariableKey("Data") / "user_id")
-    pi_value = Variable(VariableKey("nested_val") / "pi")
+    pi_value: Variable[float] = Variable(VariableKey("nested_val") / "pi")
     # Defaults only applied when key isn't found.
     # Also default values will be validated after initializing, and after you register new validator.
     some_value = Variable("not_found_value", default="Hello world")

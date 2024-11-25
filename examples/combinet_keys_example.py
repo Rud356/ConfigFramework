@@ -14,7 +14,7 @@ class ConfigSample(BaseConfig):
     path_to_variable = VariableKey("longer_nested_value") / "target"
     combined_key = VariableKey("nested_val") / path_to_variable
 
-    var = Variable(combined_key)
+    var: Variable[str] = Variable(combined_key)
 
 
 config = ConfigSample(loader)

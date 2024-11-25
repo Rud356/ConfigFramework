@@ -122,8 +122,3 @@ loader.
 - Changes in internals regarding variables initialization to support assigning data from provided loader dynamically on
 initialization of whole config.
 - Added pyproject.toml for more modern package management.
-
-### Known issues
-- Typehint for `Variable[any_type]` doesn't work properly and give
-only hints for Variable methods, while must give hints for any_type, when
-called from instance of any subclass of BaseConfig

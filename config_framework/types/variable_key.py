@@ -6,7 +6,7 @@ from typing import Iterable, Union, Iterator, List
 class VariableKey(Iterable):
     """
     Class that helps us organize how keys for config variables
-    to look for inside of some complicated nested structures.
+    to look for inside some complicated nested structures.
     """
     root_key: str
     next_pieces: List[VariableKey]
@@ -58,7 +58,7 @@ class VariableKey(Iterable):
     def __iter__(self) -> Iterator[str]:
         """
         Gives iterable that will yield parts of a full key that will
-        give be used to go inside of nested configs.
+        give be used to go inside nested configs.
 
         :return: string.
         """
