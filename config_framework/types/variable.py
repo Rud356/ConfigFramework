@@ -7,14 +7,15 @@ from typing import (
 )
 
 from . import custom_exceptions
+from .abstract.loader import AbstractLoader
 from .variable_key import VariableKey
 
 if TYPE_CHECKING:
-    from .config import BaseConfig
-    from .abstract.loader import AbstractLoader
+    from .config import BaseConfig # noqa: Used for mypy
+
 
 Var = TypeVar("Var")
-Source = TypeVar("Source", bound=Union[AbstractLoader, BaseConfig])
+Source = TypeVar("Source", bound=Union[AbstractLoader, "BaseConfig"])
 CustomSerializer = Callable[["Variable", Var], Any]
 CustomDeserializer = Callable[["Variable", Any], Var]
 CustomValidator = Callable[["Variable", Var], bool]
